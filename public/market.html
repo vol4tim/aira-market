@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width,initial-scale=1" name="viewport">
+    <title>dApp aira</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  </head>
+  <body>
+
+       <nav class="navbar navbar-inverse navbar-static-top">
+          <div class="container">
+             <div class="navbar-header">
+                <a class="navbar-brand navbar-link" href="#/">
+                   <strong>DAO</strong>
+                </a>
+                <button class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navcol-1"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+             </div>
+          </div>
+       </nav>
+        <div class="container">
+           <div class="row">
+             <div class="col-md-6">
+               <div class="panel panel-default">
+                <div class="panel-heading">Купить ETH</div>
+                <div class="panel-body">
+                  <form>
+                   <div class="form-group">
+                     <label for="exampleInputEmail1">Количество ETH:</label>
+                     <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email">
+                   </div>
+                   <div class="form-group">
+                     <label for="exampleInputPassword1">Цена за ETH:</label>
+                     <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+                   </div>
+                   <p>Всего:	0 USD</p>
+                   <button type="submit" class="btn btn-default">Купить ETH</button>
+                  </form>
+                </div>
+              </div>
+             </div>
+             <div class="col-md-6">
+               <div class="panel panel-default">
+                <div class="panel-heading">Продать ETH</div>
+                <div class="panel-body">
+                  <form>
+                   <div class="form-group">
+                     <label for="exampleInputEmail1">Количество ETH:</label>
+                     <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email">
+                   </div>
+                   <div class="form-group">
+                     <label for="exampleInputPassword1">Цена за ETH:</label>
+                     <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+                   </div>
+                   <p>Всего:	0 USD</p>
+                   <button type="submit" class="btn btn-default">Продать ETH</button>
+                  </form>
+                </div>
+              </div>
+             </div>
+           </div>
+
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="panel panel-default">
+                 <div class="panel-heading">Ордера на продажу</div>
+                 <div class="panel-body">
+                   <table class="table table-hover">
+                     <thead>
+                          <tr>
+                             <th>цена</th>
+                             <th>ETH</th>
+                             <th>USD</th>
+                          </tr>
+                        </thead>
+                     <tbody>
+                        <tr class="order" id="43_599" title="Total ETH: 1.1475636, Total USD: 50.03262539">
+                           <td><span class="price">43.599</span></td>
+                           <td><span class="amount">1.1475636</span></td>
+                           <td><span class="sum">50.03262539</span></td>
+                        </tr>
+                        <tr class="order" id="43_59998" title="Total ETH: 3.6475636, Total USD: 159.03257539">
+                           <td><span class="price">43.59998</span></td>
+                           <td><span class="amount">2.5</span></td>
+                           <td><span class="sum">108.99995</span></td>
+                        </tr>
+                        <tr class="order" id="43_6" title="Total ETH: 3.91704746, Total USD: 170.78207168">
+                           <td><span class="price">43.6</span></td>
+                           <td><span class="amount">0.26948386</span></td>
+                           <td><span class="sum">11.74949629</span></td>
+                        </tr>
+                     </tbody>
+                  </table>
+                 </div>
+               </div>
+             </div>
+             <div class="col-md-6">
+               <div class="panel panel-default">
+                <div class="panel-heading">Ордера на покупку</div>
+                <div class="panel-body">
+                  <table class="table table-hover">
+                    <thead>
+                         <tr>
+                            <th>цена</th>
+                            <th>ETH</th>
+                            <th>USD</th>
+                         </tr>
+                       </thead>
+                    <tbody>
+                       <tr class="order" id="43_599" title="Total ETH: 1.1475636, Total USD: 50.03262539">
+                          <td><span class="price">43.599</span></td>
+                          <td><span class="amount">1.1475636</span></td>
+                          <td><span class="sum">50.03262539</span></td>
+                       </tr>
+                       <tr class="order" id="43_59998" title="Total ETH: 3.6475636, Total USD: 159.03257539">
+                          <td><span class="price">43.59998</span></td>
+                          <td><span class="amount">2.5</span></td>
+                          <td><span class="sum">108.99995</span></td>
+                       </tr>
+                       <tr class="order" id="43_6" title="Total ETH: 3.91704746, Total USD: 170.78207168">
+                          <td><span class="price">43.6</span></td>
+                          <td><span class="amount">0.26948386</span></td>
+                          <td><span class="sum">11.74949629</span></td>
+                       </tr>
+                    </tbody>
+                 </table>
+                </div>
+              </div>
+            </div>
+           </div>
+
+
+           <div class="row">
+             <div class="col-md-12">
+               <div class="panel panel-default">
+                <div class="panel-heading">Мои активные ордеры:</div>
+                <div class="panel-body">
+
+                    <table class="table table-hover">
+                      <thead>
+                           <tr>
+                              <th>Тип</th>
+                              <th>Цена</th>
+                              <th>Кол-во ETH</th>
+                              <th>Всего USD</th>
+                              <th>Дата</th>
+                              <th>Действия</th>
+                           </tr>
+                         </thead>
+                      <tbody>
+                      <tr>
+                        <td><b style="color:green">Buy</b></td>
+                        <td>43.7 USD</td>
+                        <td>56.50364835 ETH</td>
+                        <td>2469.20943290 USD</td>
+                         <td>12.04.17 15:43</td>
+                         <td>-</td>
+                      </tr>
+                   </tbody>
+                </table>
+
+               </div>
+             </div>
+           </div>
+          </div>
+        </div>
+        <footer class="footer">
+           <div class="container">
+              <p>
+                 dapp
+              </p>
+           </div>
+        </footer>
+  </body>
+</html>
