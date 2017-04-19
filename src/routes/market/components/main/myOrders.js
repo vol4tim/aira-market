@@ -3,7 +3,7 @@ import SellConfirm from './sellConfirm'
 
 const MyOrders = props => (
   (<div className="panel panel-default">
-    <div className="panel-heading">My active orders:</div>
+    <div className="panel-heading"><h4 className="panel-title">My active orders</h4></div>
     <div className="panel-body">
       <table className="table table-hover">
         <thead>

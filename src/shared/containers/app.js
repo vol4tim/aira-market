@@ -49,13 +49,14 @@ class App extends Component {
 
     return (<div>
       <Header title={this.props.title} />
-      <div className="container">
+      <div className="container" id="maincontainer">
         {content}
       </div>
       <Footer />
       <Notifications
         notifications={this.props.notifications}
         style={style}
+        allowHTML
       />
     </div>)
   }

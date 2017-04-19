@@ -29,7 +29,7 @@ class SellConfirm extends Component {
             <option key={index} value={index}>{candidate}</option>
           )}
         </select>
-        <button type="submit" className="btn btn-default"><span className="glyphicon glyphicon-download-alt" /></button>
+        <button type="submit" className="btn btn-default"><span className="fa fa-chevron-right" /></button>
       </form>
     );
   }

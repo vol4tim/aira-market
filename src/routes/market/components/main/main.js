@@ -9,11 +9,11 @@ import MyOrders from './myOrders'
 const Main = props => (
   (<div>
     <h1>Market</h1>
-    <span>{props.market}</span>
+    <span className="label label-info">{props.market}</span>
     <hr />
     <div className="row">
       <div className="col-md-6">
-        <p>Token: {props.token.address}</p>
+        <p>Token: <span className="label label-info">{props.token.address}</span></p>
         <p>Balance: {props.token.balance}</p>
         <p>Approve: {props.token.approve}</p>
       </div>

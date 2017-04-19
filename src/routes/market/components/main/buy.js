@@ -23,12 +23,12 @@ class Buy extends Component {
   render() {
     return (
       <div className="panel panel-default">
-        <div className="panel-heading">Buy</div>
+        <div className="panel-heading"><h4 className="panel-title">Buy</h4></div>
         <div className="panel-body">
           <form onSubmit={this.handleSubmit}>
             <div className="form-group">
-              <span>Price:</span>
-              <input value={this.state.price} onChange={this.handleChange} name="price" type="text" className="form-control" />
+              <label className="control-label">Price:</label>
+              <input value={this.state.price} onChange={this.handleChange} name="price" type="text" className="form-control form-control-b" />
             </div>
             {this.props.approve >= Number(this.state.price) ?
               <button type="submit" className="btn btn-default">Buy</button>

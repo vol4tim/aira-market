@@ -44,7 +44,7 @@ export function events(marketAddr) {
         })
         contract.listen('NewLiability', (result) => {
           console.log('NewLiability', result);
-          dispatch(flashMessage('NewLiability: ' + result.liability))
+          dispatch(flashMessage('NewLiability: <a target="_blank" href="https://kovan.etherscan.io/address/' + result.liability + '"><strong>' + result.liability + '</strong></a>'))
         })
       })
   }

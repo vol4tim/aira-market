@@ -24,7 +24,7 @@ class SellAt extends Component {
     return (
       <form className="form-inline" onSubmit={this.handleSubmit}>
         <input value={this.state.promisee} onChange={this.handleChange} name="promisee" type="text" className="form-control" style={{ width: 80 }} />
-        <button type="submit" className="btn btn-default"><span className="glyphicon glyphicon-download-alt" /></button>
+        <button type="submit" className="btn btn-default"><span className="fa fa-chevron-right" /></button>
       </form>
     );
   }

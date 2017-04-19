@@ -24,16 +24,16 @@ class Sell extends Component {
   render() {
     return (
       <div className="panel panel-default">
-        <div className="panel-heading">Sell</div>
+        <div className="panel-heading"><h4 className="panel-title">Sell</h4></div>
         <div className="panel-body">
           <form onSubmit={this.handleSubmit}>
             <div className="form-group">
-              <span>Promisee:</span>
-              <input value={this.state.promisee} onChange={this.handleChange} name="promisee" type="text" className="form-control" />
+              <label className="control-label">Promisee:</label>
+              <input value={this.state.promisee} onChange={this.handleChange} name="promisee" type="text" className="form-control form-control-b" />
             </div>
             <div className="form-group">
-              <span>Price:</span>
-              <input value={this.state.price} onChange={this.handleChange} name="price" type="text" className="form-control" />
+              <label className="control-label">Price:</label>
+              <input value={this.state.price} onChange={this.handleChange} name="price" type="text" className="form-control form-control-b" />
             </div>
             <button type="submit" className="btn btn-default">Sell</button>
           </form>

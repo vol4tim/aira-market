@@ -28,7 +28,9 @@ const Bids = props => (
               </td>
               <td>
                 {props.approve >= order.price ?
-                  <button className="glyphicon glyphicon-download-alt" onClick={() => props.onBuy(props.market, order.index)} />
+                  <button className="btn btn-default btn-xs" onClick={() => props.onBuy(props.market, order.index)}>
+                    <span className="fa fa-chevron-down" />
+                  </button>
                   :
                   <p>Not enough approve</p>
                 }

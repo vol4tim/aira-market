@@ -14,7 +14,7 @@ export function flashMessage(message) {
       // title: 'Hey, it\'s good to see you!',
       message,
       position: 'tr',
-      autoDismiss: 8
+      autoDismiss: 10
     };
     dispatch(Notifications.info(notificationOpts))
     // dispatch({

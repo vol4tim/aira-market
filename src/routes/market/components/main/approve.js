@@ -23,12 +23,12 @@ class Approve extends Component {
   render() {
     return (
       <div className="panel panel-default">
-        <div className="panel-heading">Approve</div>
+        <div className="panel-heading"><h4 className="panel-title">Approve</h4></div>
         <div className="panel-body">
           <form onSubmit={this.handleSubmit}>
             <div className="form-group">
-              <span>Value:</span>
-              <input value={this.state.value} onChange={this.handleChange} name="value" type="text" className="form-control" />
+              <label className="control-label">Value:</label>
+              <input value={this.state.value} onChange={this.handleChange} name="value" type="text" className="form-control form-control-b" />
             </div>
             <button type="submit" className="btn btn-default">Submit</button>
           </form>
