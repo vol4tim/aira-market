@@ -6,6 +6,7 @@ import { getContractByAbiName, blockchain, coinbase, listenAddress } from '../..
 import { promiseFor } from '../../utils/helper'
 import { TOKEN_ADDR } from '../../config/config'
 import { flashMessage } from '../app/actions'
+import { addModule } from '../liability/actions'
 
 export function events(marketAddr) {
   return (dispatch) => {
@@ -44,7 +45,7 @@ export function events(marketAddr) {
         })
         contract.listen('NewLiability', (result) => {
           console.log('NewLiability', result);
-          dispatch(flashMessage('NewLiability: <a target="_blank" href="https://kovan.etherscan.io/address/' + result.liability + '"><strong>' + result.liability + '</strong></a>'))
+          dispatch(addModule(result.liability))
         })
       })
   }
@@ -64,7 +65,8 @@ export function setMarket(address) {
 export function loadAsks(marketAddr) {
   return (dispatch) => {
     dispatch({
-      type: START_LOAD
+      type: START_LOAD,
+      payload: 'asks'
     })
     const asks = [];
     let market;
@@ -119,7 +121,8 @@ export function loadAsks(marketAddr) {
 export function loadBids(marketAddr) {
   return (dispatch) => {
     dispatch({
-      type: START_LOAD
+      type: START_LOAD,
+      payload: 'bids'
     })
     const bids = [];
     let market;
@@ -174,7 +177,8 @@ export function loadBids(marketAddr) {
 export function loadMyOrders(marketAddr) {
   return (dispatch) => {
     dispatch({
-      type: START_LOAD
+      type: START_LOAD,
+      payload: 'my'
     })
     const orders = [];
     let market;
@@ -228,7 +232,8 @@ export function loadMyOrders(marketAddr) {
 export function loadToken(marketAddr) {
   return (dispatch) => {
     dispatch({
-      type: START_LOAD
+      type: START_LOAD,
+      payload: 'token'
     })
     getContractByAbiName('Token', TOKEN_ADDR)
       .then(contract => (

@@ -4,6 +4,10 @@ import { MARKET_DEFAULT_ADDR } from '../../config/config'
 const initialState = {
   market: MARKET_DEFAULT_ADDR,
   isLoad: false,
+  isLoadToken: false,
+  isLoadAsks: false,
+  isLoadBids: false,
+  isLoadMy: false,
   asks: [],
   bids: [],
   myOrders: [],
@@ -17,6 +21,15 @@ const initialState = {
 export default function market(state = initialState, action) {
   switch (action.type) {
     case START_LOAD: {
+      if (action.payload === 'token') {
+        return { ...state, isLoadToken: true }
+      } else if (action.payload === 'asks') {
+        return { ...state, isLoadAsks: true }
+      } else if (action.payload === 'bids') {
+        return { ...state, isLoadbids: true }
+      } else if (action.payload === 'my') {
+        return { ...state, isLoadMy: true }
+      }
       return { ...state, isLoad: true }
     }
 
@@ -25,19 +38,19 @@ export default function market(state = initialState, action) {
     }
 
     case LOAD_TOKEN: {
-      return { ...state, token: { ...action.payload }, isLoad: false }
+      return { ...state, token: { ...action.payload }, isLoadToken: false }
     }
 
     case LOAD_ASKS_ORDERS: {
-      return { ...state, ...action.payload, isLoad: false }
+      return { ...state, ...action.payload, isLoadAsks: false }
     }
 
     case LOAD_BIDS_ORDERS: {
-      return { ...state, ...action.payload, isLoad: false }
+      return { ...state, ...action.payload, isLoadBids: false }
     }
 
     case LOAD_MY_ORDERS: {
-      return { ...state, ...action.payload, isLoad: false }
+      return { ...state, ...action.payload, isLoadMy: false }
     }
 
     default:

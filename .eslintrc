@@ -13,7 +13,8 @@
     "semi": 0,
     "comma-dangle": 0,
     "prefer-template": 0,
-    "linebreak-style": 0
+    "linebreak-style": 0,
+    "jsx-a11y/label-has-for": 0
   },
   "parserOptions": {
     "ecmaVersion": 6,

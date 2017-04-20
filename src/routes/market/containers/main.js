@@ -12,17 +12,17 @@ class Container extends Component {
     this.props.loadMyOrders(this.props.market);
   }
   render() {
-    if (!this.props.isLoad) {
-      return <Main {...this.props} />
-    }
-    return <p>...</p>
+    return <Main {...this.props} />
   }
 }
 
 function mapStateToProps(state) {
   return {
     market: state.market.market,
-    isLoad: state.market.isLoad,
+    isLoadToken: state.market.isLoadToken,
+    isLoadAsks: state.market.isLoadAsks,
+    isLoadBids: state.market.isLoadBids,
+    isLoadMy: state.market.isLoadMy,
     asks: state.market.asks,
     bids: state.market.bids,
     myOrders: state.market.myOrders,

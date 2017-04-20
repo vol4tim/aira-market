@@ -11,16 +11,24 @@ const Main = props => (
     <h1>Market</h1>
     <span className="label label-info">{props.market}</span>
     <hr />
-    <div className="row">
-      <div className="col-md-6">
-        <p>Token: <span className="label label-info">{props.token.address}</span></p>
-        <p>Balance: {props.token.balance}</p>
-        <p>Approve: {props.token.approve}</p>
+    {!props.isLoadToken ?
+      <div className="row">
+        <div className="col-md-6">
+          <p>Token: <span className="label label-info">{props.token.address}</span></p>
+          <p>Balance: {props.token.balance}</p>
+          <p>Approve: {props.token.approve}</p>
+        </div>
+        <div className="col-md-6">
+          <Approve market={props.market} token={props.token.address} onSubmit={props.approve} />
+        </div>
       </div>
-      <div className="col-md-6">
-        <Approve market={props.market} token={props.token.address} onSubmit={props.approve} />
+      :
+      <div className="row">
+        <div className="col-md-12">
+          <p>...</p>
+        </div>
       </div>
-    </div>
+    }
     <div className="row">
       <div className="col-md-6">
         <Sell market={props.market} onSubmit={props.sell} />
@@ -37,26 +45,38 @@ const Main = props => (
         </ul>
         <div className="tab-content">
           <div className="tab-pane active" id="1">
-            <Bids
-              market={props.market}
-              orders={props.bids}
-              approve={props.token.approve}
-              onBuy={props.onBuy}
-            />
+            {!props.isLoadBids ?
+              <Bids
+                market={props.market}
+                orders={props.bids}
+                approve={props.token.approve}
+                onBuy={props.onBuy}
+              />
+              :
+              <p>...</p>
+            }
           </div>
           <div className="tab-pane" id="2">
-            <Asks market={props.market} orders={props.asks} onSell={props.onSell} />
+            {!props.isLoadAsks ?
+              <Asks market={props.market} orders={props.asks} onSell={props.onSell} />
+              :
+              <p>...</p>
+            }
           </div>
         </div>
       </div>
     </div>
     <div className="row">
       <div className="col-md-12">
-        <MyOrders
-          market={props.market}
-          orders={props.myOrders}
-          onSellConfirm={props.onSellConfirm}
-        />
+        {!props.isLoadMy ?
+          <MyOrders
+            market={props.market}
+            orders={props.myOrders}
+            onSellConfirm={props.onSellConfirm}
+          />
+          :
+          <p>...</p>
+        }
       </div>
     </div>
   </div>)

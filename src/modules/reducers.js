@@ -1,7 +1,9 @@
-import { default as app } from './app/reducer';
-import { default as market } from './market/reducer';
+import app from './app/reducer';
+import market from './market/reducer';
+import liability from './liability/reducer';
 
 export {
   app,
-  market
+  market,
+  liability
 };

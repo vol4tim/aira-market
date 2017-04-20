@@ -41,6 +41,24 @@ export function isAccounts() {
   return false
 }
 
+export function getLogs(options, cb) {
+  web3.eth.filter(options, (error, result) => {
+    if (error) {
+      console.log(error);
+    } else {
+      cb(result);
+    }
+  });
+  // return new Promise((resolve, reject) => {
+  //   web3.eth.filter(options, (error, result) => {
+  //     if (error) {
+  //       reject(error);
+  //     }
+  //     resolve(result);
+  //   });
+  // });
+}
+
 export function transfer(from, to, value, isEther = true) {
   return new Promise((resolve, reject) => {
     web3.eth.sendTransaction({
