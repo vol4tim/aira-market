@@ -76,7 +76,7 @@ export function loadAsks(marketAddr) {
         return market.call('asksLength')
       })
       .then(length => (
-        promiseFor(i => i < Number(length), (i) => {
+        promiseFor(i => (i < Number(length) && i <= 14), (i) => {
           let priceOrder = 0;
           let indexOrder = 0;
           return market.call('asks', [i])
@@ -111,7 +111,7 @@ export function loadAsks(marketAddr) {
         dispatch({
           type: LOAD_ASKS_ORDERS,
           payload: {
-            asks
+            asks: _.reverse(_.sortBy(asks, ['price']))
           }
         })
       })
@@ -132,7 +132,7 @@ export function loadBids(marketAddr) {
         return market.call('bidsLength')
       })
       .then(length => (
-        promiseFor(i => i < Number(length), (i) => {
+        promiseFor(i => (i < Number(length) && i <= 14), (i) => {
           let priceOrder = 0;
           let indexOrder = 0;
           return market.call('bids', [i])
@@ -167,7 +167,7 @@ export function loadBids(marketAddr) {
         dispatch({
           type: LOAD_BIDS_ORDERS,
           payload: {
-            bids
+            bids: _.sortBy(bids, ['price'])
           }
         })
       })
