@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { Main } from '../components/main';
-import { loadModules } from '../../../modules/liability/actions';
+import { loadModules, refrash } from '../../../modules/liability/actions';
 
 class Container extends Component {
   componentWillMount() {
@@ -22,16 +22,19 @@ class Container extends Component {
 
 function mapStateToProps(state) {
   return {
+    market: state.market.market,
     items: state.liability.items,
     isLoad: state.liability.isLoad
   }
 }
 function mapDispatchToProps(dispatch) {
   const actions = bindActionCreators({
-    loadModules
+    loadModules,
+    refrash
   }, dispatch)
   return {
-    loadModules: actions.loadModules
+    loadModules: actions.loadModules,
+    refrash: actions.refrash
   }
 }
 

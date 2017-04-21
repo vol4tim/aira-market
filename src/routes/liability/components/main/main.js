@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 
 const Main = props => (
   (<div>
+    <button className="btn btn-warning pull-right" onClick={() => props.refrash(props.market)}>refrash</button>
     <h1>Liability</h1>
     <div className="list-group" style={{ marginBottom: 0 }}>
       {props.items.map((item, index) =>

@@ -1,6 +1,7 @@
 import Promise from 'bluebird'
 import _ from 'lodash'
 import cookie from 'react-cookie'
+import bs58 from 'bs58'
 import { START_LOAD, START_LOAD_MODULE, LOAD_MODULE, LOAD_MODULES, ADD_MODULE, ADD_LOG } from './actionTypes'
 import { getContractByAbiName, getLogs, coinbase } from '../../utils/web3'
 import { flashMessage } from '../app/actions'
@@ -20,7 +21,7 @@ export function log(address) {
             event: {
               name: 'Result',
               result: {
-                hash: result.topics[1]
+                hash: bs58.encode(new Buffer('1220' + result.topics[1].replace('0x', ''), 'hex'))
               }
             }
           }
@@ -32,38 +33,40 @@ export function log(address) {
 
 export function addModule(address) {
   return (dispatch) => {
-    getContractByAbiName('Liability', address)
-      .then(contract => (
-        Promise.join(
-          contract.call('promisor'),
-          contract.call('promisee'),
-          (promisor, promisee) => (
-            {
-              promisor,
-              promisee
-            }
+    let modules = cookie.load('liability_modules');
+    if (_.findIndex(modules, address) < 0) {
+      getContractByAbiName('Liability', address)
+        .then(contract => (
+          Promise.join(
+            contract.call('promisor'),
+            contract.call('promisee'),
+            (promisor, promisee) => (
+              {
+                promisor,
+                promisee
+              }
+            )
           )
-        )
-      ))
-      .then((module) => {
-        if (module.promisor === coinbase()) {
-          dispatch(flashMessage('NewLiability: <a target="_blank" href="https://kovan.etherscan.io/address/' + address + '"><strong>' + address + '</strong></a>'))
-          let modules = cookie.load('liability_modules')
-          if (_.isUndefined(modules)) {
-            modules = [];
-          }
-          modules.push(address);
-          cookie.save('liability_modules', modules);
-          dispatch({
-            type: ADD_MODULE,
-            payload: {
-              isLoad: false,
-              address,
-              logs: []
+        ))
+        .then((module) => {
+          if (module.promisor === coinbase()) {
+            dispatch(flashMessage('NewLiability: <a target="_blank" href="https://kovan.etherscan.io/address/' + address + '"><strong>' + address + '</strong></a>'))
+            if (_.isUndefined(modules)) {
+              modules = [];
             }
-          })
-        }
-      })
+            modules.push(address);
+            cookie.save('liability_modules', modules);
+            dispatch({
+              type: ADD_MODULE,
+              payload: {
+                isLoad: false,
+                address,
+                logs: []
+              }
+            })
+          }
+        })
+    }
   }
 }
 
@@ -124,5 +127,24 @@ export function loadModules() {
         ))
       })
     }
+  }
+}
+
+export function refrash(address) {
+  return (dispatch) => {
+    dispatch({
+      type: LOAD_MODULES,
+      payload: []
+    })
+    cookie.save('liability_modules', []);
+    getLogs({
+      address,
+      fromBlock: 0,
+      toBlock: 'latest'
+    }, (result) => {
+      if (result.topics[0] === '0xf0f0e2354315aae25080baa26761b4ef52d621c91208fb0edde9e3f3fade3219') {
+        dispatch(addModule('0x' + result.topics[1].substr(result.topics[1].length - 40)))
+      }
+    })
   }
 }

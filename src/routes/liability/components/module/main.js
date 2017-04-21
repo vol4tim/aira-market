@@ -1,3 +1,4 @@
+/* eslint react/jsx-no-target-blank: 0 */
 import React from 'react'
 
 const Main = props => (
@@ -10,7 +11,7 @@ const Main = props => (
       <h2>Events</h2>
       {props.module.logs.map((item, index) =>
         <div key={index} className="list-group-item">
-          {item.name} - {item.result.hash.replace('0x', '0x1220')}
+          {item.name} - <a target="_blank" href={'https://ipfs.io/ipfs/' + item.result.hash}>{item.result.hash}</a>
         </div>
       )}
     </div>

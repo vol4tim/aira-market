@@ -1,6 +1,5 @@
 import React from 'react'
 import Approve from './approve'
-import Sell from './sell'
 import Buy from './buy'
 import Asks from './asks'
 import Bids from './bids'
@@ -30,10 +29,7 @@ const Main = props => (
       </div>
     }
     <div className="row">
-      <div className="col-md-6">
-        <Sell market={props.market} onSubmit={props.sell} />
-      </div>
-      <div className="col-md-6">
+      <div className="col-md-12">
         <Buy market={props.market} approve={props.token.approve} onSubmit={props.buy} />
       </div>
     </div>

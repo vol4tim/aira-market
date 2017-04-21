@@ -289,7 +289,6 @@ export function send(abi, address, action, values) {
         // dispatch(stopSubmit(formName))
         // dispatch(reset(formName))
         dispatch(flashMessage('blockNumber: ' + transaction.blockNumber))
-        // // console.log('blockNumber: ' + transaction.blockNumber);
         return transaction;
       })
       .catch((e) => {
@@ -300,62 +299,27 @@ export function send(abi, address, action, values) {
   )
 }
 
-export function sell(marketAddr, data) {
-  return (dispatch) => {
-    dispatch(send('LiabilityMarket', marketAddr, 'limitSell', _.values(data)))
-      // .then((transaction) => {
-      //   // console.log('transaction: ' + transaction);
-      //   // dispatch(loadBids(marketAddr));
-      //   // dispatch(loadMyOrders(marketAddr));
-      // })
-  }
-}
-
 export function buy(marketAddr, data) {
   return (dispatch) => {
     dispatch(send('LiabilityMarket', marketAddr, 'limitBuy', _.values(data)))
-      // .then((transaction) => {
-      //   // console.log('transaction: ' + transaction);
-      //   // dispatch(loadToken(marketAddr));
-      //   // dispatch(loadAsks(marketAddr));
-      //   // dispatch(loadMyOrders(marketAddr));
-      // })
   }
 }
 
 export function onBuy(marketAddr, index) {
   return (dispatch) => {
     dispatch(send('LiabilityMarket', marketAddr, 'buyAt', [index]))
-      // .then((transaction) => {
-      //   // console.log('transaction: ' + transaction);
-      //   // dispatch(loadToken(marketAddr));
-      //   // dispatch(loadBids(marketAddr));
-      //   // dispatch(loadMyOrders(marketAddr));
-      // })
   }
 }
 
 export function onSell(marketAddr, index, data) {
   return (dispatch) => {
     dispatch(send('LiabilityMarket', marketAddr, 'sellAt', [index, data.promisee]))
-      // .then((transaction) => {
-      //   // console.log('transaction: ' + transaction);
-      //   // dispatch(loadToken(marketAddr));
-      //   // dispatch(loadAsks(marketAddr));
-      //   // dispatch(loadMyOrders(marketAddr));
-      // })
   }
 }
 
 export function onSellConfirm(marketAddr, index, data) {
   return (dispatch) => {
     dispatch(send('LiabilityMarket', marketAddr, 'sellConfirm', [index, data.candidates]))
-      // .then((transaction) => {
-      //   // console.log('transaction: ' + transaction);
-      //   // dispatch(loadToken(marketAddr));
-      //   // dispatch(loadBids(marketAddr));
-      //   // dispatch(loadMyOrders(marketAddr));
-      // })
   }
 }
 
@@ -364,9 +328,5 @@ export function approve(marketAddr, address, data) {
     const dataForm = _.values(data);
     dataForm.unshift(marketAddr);
     dispatch(send('Token', address, 'approve', dataForm))
-      // .then((transaction) => {
-      //   // console.log('transaction: ' + transaction);
-      //   // dispatch(loadToken(marketAddr));
-      // })
   }
 }
