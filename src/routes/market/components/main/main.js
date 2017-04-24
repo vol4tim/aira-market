@@ -7,7 +7,11 @@ import MyOrders from './myOrders'
 
 const Main = props => (
   (<div>
-    <h1>Market</h1>
+    {!props.isLoadMarket ?
+      <h1>{props.info.name}</h1>
+      :
+      <h1>...</h1>
+    }
     <span className="label label-info">{props.market}</span>
     <hr />
     {!props.isLoadToken ?
@@ -36,8 +40,8 @@ const Main = props => (
     <div className="row">
       <div className="col-md-12">
         <ul className="nav nav-tabs">
-          <li className="active"><a href="#1" data-toggle="tab">Buy orders</a></li>
-          <li><a href="#2" data-toggle="tab">Sell orders</a></li>
+          <li className="active"><a href="#1" data-toggle="tab">Buy</a></li>
+          <li><a href="#2" data-toggle="tab">Sell</a></li>
         </ul>
         <div className="tab-content">
           <div className="tab-pane active" id="1">

@@ -1,7 +1,7 @@
 import Promise from 'bluebird'
 import _ from 'lodash'
 import cookie from 'react-cookie'
-import { START_LOAD, SET_MARKET, LOAD_TOKEN, LOAD_ASKS_ORDERS, LOAD_BIDS_ORDERS, LOAD_MY_ORDERS } from './actionTypes'
+import { START_LOAD, SET_MARKET, LOAD_MARKET, LOAD_TOKEN, LOAD_ASKS_ORDERS, LOAD_BIDS_ORDERS, LOAD_MY_ORDERS } from './actionTypes'
 import { getContractByAbiName, blockchain, coinbase, listenAddress } from '../../utils/web3'
 import { promiseFor } from '../../utils/helper'
 import { TOKEN_ADDR } from '../../config/config'
@@ -62,51 +62,80 @@ export function setMarket(address) {
   }
 }
 
+export function loadMarket(marketAddr) {
+  return (dispatch) => {
+    dispatch({
+      type: START_LOAD,
+      payload: 'market'
+    })
+    let market;
+    getContractByAbiName('LiabilityMarket', marketAddr)
+      .then((contract) => {
+        market = contract;
+        return market.call('name')
+      })
+      .then((name) => {
+        dispatch({
+          type: LOAD_MARKET,
+          payload: {
+            name
+          }
+        })
+      })
+  }
+}
+
 export function loadAsks(marketAddr) {
   return (dispatch) => {
     dispatch({
       type: START_LOAD,
       payload: 'asks'
     })
-    const asks = [];
     let market;
     getContractByAbiName('LiabilityMarket', marketAddr)
       .then((contract) => {
         market = contract;
         return market.call('asksLength')
       })
-      .then(length => (
-        promiseFor(i => (i < Number(length) && i <= 14), (i) => {
-          let priceOrder = 0;
-          let indexOrder = 0;
+      .then((length) => {
+        const orders = [];
+        const getOrder = (i) => {
+          const res = {
+            indexOrder: 0,
+            priceOrder: 0
+          };
           return market.call('asks', [i])
             .then((index) => {
-              indexOrder = Number(index);
-              // console.log('index', indexOrder);
-              return market.call('priceOf', [indexOrder])
+              res.indexOrder = Number(index)
+              // console.log('index', res.indexOrder);
+              return market.call('priceOf', [res.indexOrder])
             })
-            .then((price) => {
-              priceOrder = Number(price);
+            .then((priceOrder) => {
+              res.priceOrder = Number(priceOrder);
               // console.log('price', Number(price));
-              return market.call('getOrder', [indexOrder])
+              return market.call('getOrder', [res.indexOrder])
             })
             .then((order) => {
               // console.log('order', order);
-              if (indexOrder > 0 && !order[3]) {
-                asks.push({
-                  index: indexOrder,
+              if (res.indexOrder > 0 && !order[3]) {
+                return {
+                  index: res.indexOrder,
                   beneficiary: order[0],
                   promisee: order[1],
                   promisor: order[2],
                   closed: order[3],
-                  price: priceOrder
-                })
+                  price: res.priceOrder
+                }
               }
-              return i + 1;
+              return false;
             })
-        }, 0)
-      ))
-      .then(() => {
+        }
+        for (let i = 0; i < Number(length) && i <= 14; i += 1) {
+          orders.push(getOrder(i));
+        }
+        return Promise.all(orders)
+      })
+      .then((asks) => {
         // console.log('ok', asks);
         dispatch({
           type: LOAD_ASKS_ORDERS,
@@ -124,45 +153,51 @@ export function loadBids(marketAddr) {
       type: START_LOAD,
       payload: 'bids'
     })
-    const bids = [];
     let market;
     getContractByAbiName('LiabilityMarket', marketAddr)
       .then((contract) => {
         market = contract;
         return market.call('bidsLength')
       })
-      .then(length => (
-        promiseFor(i => (i < Number(length) && i <= 14), (i) => {
-          let priceOrder = 0;
-          let indexOrder = 0;
+      .then((length) => {
+        const orders = [];
+        const getOrder = (i) => {
+          const res = {
+            indexOrder: 0,
+            priceOrder: 0
+          };
           return market.call('bids', [i])
             .then((index) => {
-              indexOrder = Number(index);
-              // console.log('index', indexOrder);
-              return market.call('priceOf', [indexOrder])
+              res.indexOrder = Number(index)
+              // console.log('index', res.indexOrder);
+              return market.call('priceOf', [res.indexOrder])
             })
-            .then((price) => {
-              priceOrder = Number(price);
+            .then((priceOrder) => {
+              res.priceOrder = Number(priceOrder);
               // console.log('price', Number(price));
-              return market.call('getOrder', [indexOrder])
+              return market.call('getOrder', [res.indexOrder])
             })
             .then((order) => {
               // console.log('order', order);
-              if (indexOrder > 0 && !order[3]) {
-                bids.push({
-                  index: indexOrder,
+              if (res.indexOrder > 0 && !order[3]) {
+                return {
+                  index: res.indexOrder,
                   beneficiary: order[0],
                   promisee: order[1],
                   promisor: order[2],
                   closed: order[3],
-                  price: priceOrder
-                })
+                  price: res.priceOrder
+                }
               }
-              return i + 1;
+              return false;
             })
-        }, 0)
-      ))
-      .then(() => {
+        }
+        for (let i = 0; i < Number(length) && i <= 14; i += 1) {
+          orders.push(getOrder(i));
+        }
+        return Promise.all(orders)
+      })
+      .then((bids) => {
         // console.log('ok', bids);
         dispatch({
           type: LOAD_BIDS_ORDERS,
@@ -180,10 +215,9 @@ export function loadMyOrders(marketAddr) {
       type: START_LOAD,
       payload: 'my'
     })
-    const orders = [];
+    const indexes = [];
     let market;
     let id = 0;
-    // console.log('coinbase', coinbase());
     getContractByAbiName('LiabilityMarket', marketAddr)
       .then((contract) => {
         market = contract;
@@ -191,38 +225,52 @@ export function loadMyOrders(marketAddr) {
       })
       .then(firstIndex => (
         promiseFor(index => index > 0, (index) => {
+          indexes.push(Number(index))
           // console.log('index', Number(index));
-          let priceOrder = 0;
-          return market.call('priceOf', [index])
-            .then((price) => {
-              priceOrder = Number(price);
-              // console.log('my price', Number(price));
-              return market.call('getOrder', [index])
+          id += 1;
+          return market.call('ordersOf', [coinbase(), id])
+        }, Number(firstIndex))
+      ))
+      .then(() => {
+        const orders = [];
+        const getOrder = (index) => {
+          const res = {
+            indexOrder: index,
+            priceOrder: 0
+          };
+          return market.call('priceOf', [res.indexOrder])
+            .then((priceOrder) => {
+              res.priceOrder = Number(priceOrder);
+              // console.log('price', Number(price));
+              return market.call('getOrder', [res.indexOrder])
             })
             .then((order) => {
-              // console.log('my order', order);
-              if (index > 0 && !order[3]) {
-                orders.push({
-                  index,
+              // console.log('order', order);
+              if (res.indexOrder > 0 && !order[3]) {
+                return {
+                  index: res.indexOrder,
                   type: (order[2] === '0x0000000000000000000000000000000000000000') ? 'sell' : 'buy',
                   beneficiary: order[0],
                   promisee: order[1],
                   promisor: order[2],
                   closed: order[3],
-                  price: priceOrder
-                })
+                  price: res.priceOrder
+                }
               }
-              id += 1;
-              return market.call('ordersOf', [coinbase(), id])
+              return false;
             })
-        }, Number(firstIndex))
-      ))
-      .then(() => {
-        // console.log('my oks', orders);
+        }
+        _.forEach(indexes, (i) => {
+          orders.push(getOrder(i));
+        })
+        return Promise.all(orders)
+      })
+      .then((orders) => {
+        // console.log('my oks', _.compact(orders));
         dispatch({
           type: LOAD_MY_ORDERS,
           payload: {
-            myOrders: orders
+            myOrders: _.compact(orders)
           }
         })
       })

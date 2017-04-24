@@ -6,7 +6,7 @@ const Main = props => (
   <div>
     <Form onSubmit={props.setMarket} />
     {props.market !== '' &&
-      <Link to="/market">show market {props.market}</Link>
+      <Link to="/">show market {props.market}</Link>
     }
   </div>
 )

@@ -9,10 +9,8 @@ import * as Liability from '../routes/liability'
 export const routes = () =>
   (<div>
     <Route path="/" component={App}>
-      <IndexRoute component={Start} />
-      <Route path="/market" component={Market.Page}>
-        <IndexRoute component={Market.Main} />
-      </Route>
+      <IndexRoute component={Market.Main} />
+      <Route path="/change-market" component={Start} />
       <Route path="/liability" component={Liability.Page}>
         <IndexRoute component={Liability.Main} />
         <Route path=":address" component={Liability.Module} />
