@@ -41,6 +41,17 @@ export function isAccounts() {
   return false
 }
 
+export function getBlock(hash) {
+  return new Promise((resolve, reject) => {
+    web3.eth.getBlock(hash, false, (error, blockInfo) => {
+      if (error) {
+        reject(error);
+      }
+      resolve(blockInfo);
+    });
+  });
+}
+
 export function getLogs(options, cb) {
   web3.eth.filter(options, (error, result) => {
     if (error) {

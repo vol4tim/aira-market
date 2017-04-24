@@ -3,8 +3,20 @@ import _ from 'lodash'
 import cookie from 'react-cookie'
 import bs58 from 'bs58'
 import { START_LOAD, START_LOAD_MODULE, LOAD_MODULE, LOAD_MODULES, ADD_MODULE, ADD_LOG } from './actionTypes'
-import { getContractByAbiName, getLogs, coinbase } from '../../utils/web3'
+import { getContractByAbiName, getLogs, coinbase, getBlock } from '../../utils/web3'
 import { flashMessage } from '../app/actions'
+
+function timeConverter(timestamp) {
+  const a = new Date(timestamp * 1000);
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const year = a.getFullYear();
+  const month = months[a.getMonth()];
+  const date = a.getDate();
+  const hour = a.getHours();
+  const min = a.getMinutes();
+  const sec = a.getSeconds();
+  return date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec;
+}
 
 export function log(address) {
   return (dispatch) => {
@@ -14,18 +26,22 @@ export function log(address) {
       toBlock: 'latest'
     }, (result) => {
       if (result.topics[0] === '0x9782e43d253523a5acb8e376e2c5bb5abbf46a1f032d929e135c93f5b4d8f0dd') { // Result
-        dispatch({
-          type: ADD_LOG,
-          payload: {
-            address,
-            event: {
-              name: 'Result',
-              result: {
-                hash: bs58.encode(new Buffer('1220' + result.topics[1].replace('0x', ''), 'hex'))
+        getBlock(result.blockNumber)
+          .then((block) => {
+            dispatch({
+              type: ADD_LOG,
+              payload: {
+                address,
+                event: {
+                  name: 'Result',
+                  result: {
+                    date: timeConverter(block.timestamp),
+                    hash: bs58.encode(new Buffer('1220' + result.topics[1].replace('0x', ''), 'hex'))
+                  }
+                }
               }
-            }
-          }
-        })
+            })
+          })
       }
     })
   }

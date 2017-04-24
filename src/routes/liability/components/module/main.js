@@ -11,6 +11,7 @@ const Main = props => (
       <h2>Events</h2>
       {props.module.logs.map((item, index) =>
         <div key={index} className="list-group-item">
+          <span className="label label-success">{item.result.date}</span><br />
           {item.name} - <a target="_blank" href={'https://ipfs.io/ipfs/' + item.result.hash}>{item.result.hash}</a>
         </div>
       )}
