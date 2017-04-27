@@ -1,5 +1,4 @@
 import React from 'react'
-import Approve from './approve'
 import Buy from './buy'
 import Asks from './asks'
 import Bids from './bids'
@@ -16,13 +15,10 @@ const Main = props => (
     <hr />
     {!props.isLoadToken ?
       <div className="row">
-        <div className="col-md-6">
+        <div className="col-md-12">
           <p>Token: <span className="label label-info">{props.token.address}</span></p>
           <p>Balance: {props.token.balance}</p>
           <p>Approve: {props.token.approve}</p>
-        </div>
-        <div className="col-md-6">
-          <Approve market={props.market} token={props.token.address} onSubmit={props.approve} />
         </div>
       </div>
       :
@@ -34,7 +30,13 @@ const Main = props => (
     }
     <div className="row">
       <div className="col-md-12">
-        <Buy market={props.market} approve={props.token.approve} onSubmit={props.buy} />
+        <Buy
+          market={props.market}
+          approve={props.token.approve}
+          token={props.token.address}
+          onSubmit={props.buy}
+          onApprove={props.approve}
+        />
       </div>
     </div>
     <div className="row">
@@ -51,7 +53,9 @@ const Main = props => (
                 orders={props.bids}
                 names={props.names}
                 approve={props.token.approve}
+                token={props.token.address}
                 onBuy={props.onBuy}
+                onApprove={props.approve}
               />
               :
               <p>...</p>

@@ -55,7 +55,19 @@ const Bids = props => (
                     <span className="fa fa-chevron-down" />
                   </button>
                   :
-                  <p>Not enough approve</p>
+                  <div>
+                    <span>Not enough approve </span>
+                    <button
+                      className="btn btn-warning btn-xs"
+                      onClick={() => props.onApprove(
+                        props.market,
+                        props.token,
+                        order.price - props.approve
+                      )}
+                    >
+                      Approve {order.price - props.approve}
+                    </button>
+                  </div>
                 }
               </td>
             </tr>

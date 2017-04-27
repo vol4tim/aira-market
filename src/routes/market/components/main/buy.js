@@ -33,7 +33,22 @@ class Buy extends Component {
             {this.props.approve >= Number(this.state.price) ?
               <button type="submit" className="btn btn-default">Buy</button>
               :
-              <p>Not enough approve</p>
+              <div>
+                <span>Not enough approve </span>
+                <button
+                  className="btn btn-warning"
+                  onClick={(e) => {
+                    this.props.onApprove(
+                      this.props.market,
+                      this.props.token,
+                      Number(this.state.price) - this.props.approve
+                    );
+                    e.preventDefault();
+                  }}
+                >
+                  Approve {Number(this.state.price) - this.props.approve}
+                </button>
+              </div>
             }
           </form>
         </div>

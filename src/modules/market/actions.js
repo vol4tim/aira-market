@@ -459,7 +459,8 @@ export function loadToken(marketAddr) {
           payload: token
         })
         listenAddress(TOKEN_ADDR, 'loadToken', () => {
-          dispatch(loadToken(marketAddr))
+          dispatch(loadToken(marketAddr));
+          dispatch(loadBids(marketAddr));
         })
         listenAddress(marketAddr, 'loadMarket', () => {
           dispatch(loadToken(marketAddr))
@@ -519,9 +520,9 @@ export function onSellConfirm(marketAddr, index, data) {
   }
 }
 
-export function approve(marketAddr, address, data) {
+export function approve(marketAddr, address, value) {
   return (dispatch) => {
-    const dataForm = _.values(data);
+    const dataForm = [value];
     dataForm.unshift(marketAddr);
     dispatch(send('Token', address, 'approve', dataForm))
   }
