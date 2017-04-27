@@ -53,7 +53,7 @@ const MyOrders = props => (
                 <ul>
                   {order.ipfs.map((hash, index2) =>
                     <li key={index2}>
-                      <Name hash names={props.names} address={order.promisee[index2]} />
+                      <Name name={hash} names={props.names} address={order.promisee[index2]} />
                     </li>
                   )}
                 </ul>
