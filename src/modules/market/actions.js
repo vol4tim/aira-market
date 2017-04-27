@@ -25,7 +25,7 @@ function getEns(address) {
       return result
     })
 }
-function loadEns(addresses) {
+export function loadEns(addresses) {
   const hashes = [];
   const getHash = address => (
     getEns(address)

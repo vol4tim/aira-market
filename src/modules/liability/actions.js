@@ -3,8 +3,10 @@ import _ from 'lodash'
 import cookie from 'react-cookie'
 import bs58 from 'bs58'
 import { START_LOAD, START_LOAD_MODULE, LOAD_MODULE, LOAD_MODULES, ADD_MODULE, ADD_LOG } from './actionTypes'
+import { SET_NAME_PROMISEE } from '../market/actionTypes'
 import { getContractByAbiName, getLogs, coinbase, getBlock } from '../../utils/web3'
 import { flashMessage } from '../app/actions'
+import { getNameIpfs, loadEns } from '../market/actions'
 
 function timeConverter(timestamp) {
   const a = new Date(timestamp * 1000);
@@ -92,6 +94,7 @@ export function loadModule(address) {
       type: START_LOAD_MODULE,
       payload: address
     })
+    let payload;
     getContractByAbiName('Liability', address)
       .then(contract => (
         Promise.join(
@@ -106,14 +109,46 @@ export function loadModule(address) {
           )
         )
       ))
+      // .then((module) => {
+      //   dispatch({
+      //     type: LOAD_MODULE,
+      //     payload: {
+      //       ...module,
+      //       isLoad: true,
+      //       logs: []
+      //     }
+      //   })
+      //   dispatch(log(address))
+      // })
       .then((module) => {
+        payload = {
+          ...module,
+          isLoad: true,
+          logs: []
+        }
+        return loadEns([module.promisee]);
+      })
+      .then((result) => {
+        if (result) {
+          _.forEach(result, (hash) => {
+            if (hash.substr(0, 2) === 'Qm') {
+              dispatch(getNameIpfs(payload.promisee, hash));
+            } else {
+              dispatch({
+                type: SET_NAME_PROMISEE,
+                payload: {
+                  address: payload.promisee,
+                  name: hash
+                }
+              })
+            }
+          })
+        }
+      })
+      .then(() => {
         dispatch({
           type: LOAD_MODULE,
-          payload: {
-            ...module,
-            isLoad: true,
-            logs: []
-          }
+          payload
         })
         dispatch(log(address))
       })

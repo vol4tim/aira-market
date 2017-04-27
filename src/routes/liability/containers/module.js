@@ -28,7 +28,8 @@ function mapStateToProps(state, props) {
     }
   }
   return {
-    module
+    module,
+    names: state.market.names
   }
 }
 function mapDispatchToProps(dispatch) {
