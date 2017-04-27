@@ -42,13 +42,15 @@ export function getNameIpfs(address, hash) {
     if (!_.has(state.market.names, address)) {
       axios.get('https://ipfs.io/ipfs/' + hash)
         .then((results) => {
-          dispatch({
-            type: SET_NAME_PROMISEE,
-            payload: {
-              address,
-              name: results.data.IPNS
-            }
-          })
+          if (_.has(results.data, 'name')) {
+            dispatch({
+              type: SET_NAME_PROMISEE,
+              payload: {
+                address,
+                name: results.data.name
+              }
+            })
+          }
         })
     }
   }
