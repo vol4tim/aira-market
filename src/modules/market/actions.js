@@ -1,12 +1,58 @@
 import Promise from 'bluebird'
 import _ from 'lodash'
+import axios from 'axios'
 import cookie from 'react-cookie'
-import { START_LOAD, SET_MARKET, LOAD_MARKET, LOAD_TOKEN, LOAD_ASKS_ORDERS, LOAD_BIDS_ORDERS, LOAD_MY_ORDERS } from './actionTypes'
+import { START_LOAD, SET_MARKET, LOAD_MARKET, LOAD_TOKEN, LOAD_ASKS_ORDERS, LOAD_BIDS_ORDERS, LOAD_MY_ORDERS, SET_NAME_PROMISEE } from './actionTypes'
 import { getContractByAbiName, blockchain, coinbase, listenAddress } from '../../utils/web3'
 import { promiseFor } from '../../utils/helper'
-import { TOKEN_ADDR } from '../../config/config'
+import { TOKEN_ADDR, ENS_ADDR } from '../../config/config'
 import { flashMessage } from '../app/actions'
 import { addModule } from '../liability/actions'
+
+const ipfs = {};
+function getEns(address) {
+  if (_.has(ipfs, address)) {
+    return new Promise((resolve) => {
+      resolve(ipfs[address]);
+    });
+  }
+  return getContractByAbiName('ENS', ENS_ADDR)
+    .then(contract => (
+      contract.call('items', [address])
+    ))
+    .then((result) => {
+      ipfs[address] = result;
+      return result
+    })
+}
+function loadEns(addresses) {
+  const hashes = [];
+  const getHash = address => (
+    getEns(address)
+  )
+  _.forEach(addresses, (address) => {
+    hashes.push(getHash(address));
+  })
+  return Promise.all(hashes)
+}
+
+export function getNameIpfs(address, hash) {
+  return (dispatch, getState) => {
+    const state = getState()
+    if (!_.has(state.market.names, address)) {
+      axios.get('https://ipfs.io/ipfs/' + hash)
+        .then((results) => {
+          dispatch({
+            type: SET_NAME_PROMISEE,
+            payload: {
+              address,
+              name: results.data.IPNS
+            }
+          })
+        })
+    }
+  }
+}
 
 export function events(marketAddr) {
   return (dispatch) => {
@@ -104,6 +150,7 @@ export function loadAsks(marketAddr) {
             indexOrder: 0,
             priceOrder: 0
           };
+          let orderInfo;
           return market.call('asks', [i])
             .then((index) => {
               res.indexOrder = Number(index)
@@ -116,19 +163,51 @@ export function loadAsks(marketAddr) {
               return market.call('getOrder', [res.indexOrder])
             })
             .then((order) => {
-              // console.log('order', order);
+              orderInfo = false;
               if (res.indexOrder > 0 && !order[3]) {
-                return {
+                orderInfo = {
                   index: res.indexOrder,
                   beneficiary: order[0],
                   promisee: order[1],
+                  ipfs: [],
                   promisor: order[2],
                   closed: order[3],
                   price: res.priceOrder
-                }
+                };
+              }
+              return orderInfo;
+            })
+            .then(() => {
+              if (orderInfo && orderInfo.promisee.length > 0) {
+                return loadEns(orderInfo.promisee);
               }
               return false;
             })
+            .then((result) => {
+              if (result) {
+                orderInfo.ipfs = result;
+                _.forEach(result, (hash, index) => {
+                  if (hash.substr(0, 2) === 'Qm') {
+                    dispatch(getNameIpfs(orderInfo.promisee[index], hash));
+                  }
+                });
+              }
+              return orderInfo;
+            })
+            // .then((order) => {
+            //   // console.log('order', order);
+            //   if (res.indexOrder > 0 && !order[3]) {
+            //     return {
+            //       index: res.indexOrder,
+            //       beneficiary: order[0],
+            //       promisee: order[1],
+            //       promisor: order[2],
+            //       closed: order[3],
+            //       price: res.priceOrder
+            //     }
+            //   }
+            //   return false;
+            // })
         }
         for (let i = 0; i < Number(length) && i <= 14; i += 1) {
           orders.push(getOrder(i));
@@ -166,6 +245,7 @@ export function loadBids(marketAddr) {
             indexOrder: 0,
             priceOrder: 0
           };
+          let orderInfo;
           return market.call('bids', [i])
             .then((index) => {
               res.indexOrder = Number(index)
@@ -178,19 +258,51 @@ export function loadBids(marketAddr) {
               return market.call('getOrder', [res.indexOrder])
             })
             .then((order) => {
-              // console.log('order', order);
+              orderInfo = false;
               if (res.indexOrder > 0 && !order[3]) {
-                return {
+                orderInfo = {
                   index: res.indexOrder,
                   beneficiary: order[0],
                   promisee: order[1],
                   promisor: order[2],
+                  ipfs: [],
                   closed: order[3],
                   price: res.priceOrder
-                }
+                };
+              }
+              return orderInfo;
+            })
+            .then(() => {
+              if (orderInfo && orderInfo.promisee.length > 0) {
+                return loadEns(orderInfo.promisee);
               }
               return false;
             })
+            .then((result) => {
+              if (result) {
+                orderInfo.ipfs = result;
+                _.forEach(result, (hash, index) => {
+                  if (hash.substr(0, 2) === 'Qm') {
+                    dispatch(getNameIpfs(orderInfo.promisee[index], hash));
+                  }
+                });
+              }
+              return orderInfo;
+            })
+            // .then((order) => {
+            //   // console.log('order', order);
+            //   if (res.indexOrder > 0 && !order[3]) {
+            //     return {
+            //       index: res.indexOrder,
+            //       beneficiary: order[0],
+            //       promisee: order[1],
+            //       promisor: order[2],
+            //       closed: order[3],
+            //       price: res.priceOrder
+            //     }
+            //   }
+            //   return false;
+            // })
         }
         for (let i = 0; i < Number(length) && i <= 14; i += 1) {
           orders.push(getOrder(i));
@@ -238,6 +350,7 @@ export function loadMyOrders(marketAddr) {
             indexOrder: index,
             priceOrder: 0
           };
+          let orderInfo;
           return market.call('priceOf', [res.indexOrder])
             .then((priceOrder) => {
               res.priceOrder = Number(priceOrder);
@@ -245,20 +358,55 @@ export function loadMyOrders(marketAddr) {
               return market.call('getOrder', [res.indexOrder])
             })
             .then((order) => {
-              // console.log('order', order);
+              orderInfo = false;
               if (res.indexOrder > 0 && !order[3]) {
-                return {
+                orderInfo = {
                   index: res.indexOrder,
                   type: (order[2] === '0x0000000000000000000000000000000000000000') ? 'sell' : 'buy',
                   beneficiary: order[0],
                   promisee: order[1],
+                  ipfs: [],
                   promisor: order[2],
                   closed: order[3],
                   price: res.priceOrder
-                }
+                };
+              }
+              return orderInfo;
+            })
+            .then(() => {
+              if (orderInfo && orderInfo.promisee.length > 0) {
+                return loadEns(orderInfo.promisee);
               }
               return false;
             })
+            .then((result) => {
+              if (result) {
+                orderInfo.ipfs = result;
+                _.forEach(result, (hash, index2) => {
+                  if (hash.substr(0, 2) === 'Qm') {
+                    dispatch(getNameIpfs(orderInfo.promisee[index2], hash));
+                  }
+                });
+              }
+              return orderInfo;
+            })
+            // .then((order) => {
+            //   // console.log('order', order);
+            //   if (res.indexOrder > 0 && !order[3]) {
+            //     return {
+            //       index: res.indexOrder,
+            //       type: (order[2] === '0x00000000000000000000000000000000000
+            // 00000') ? 'sell' : 'buy',
+            //       beneficiary: order[0],
+            //       promisee: order[1],
+            //       ipfs: [],
+            //       promisor: order[2],
+            //       closed: order[3],
+            //       price: res.priceOrder
+            //     }
+            //   }
+            //   return false;
+            // })
         }
         _.forEach(indexes, (i) => {
           orders.push(getOrder(i));

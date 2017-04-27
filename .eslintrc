@@ -14,7 +14,8 @@
     "comma-dangle": 0,
     "prefer-template": 0,
     "linebreak-style": 0,
-    "jsx-a11y/label-has-for": 0
+    "jsx-a11y/label-has-for": 0,
+    "react/jsx-no-target-blank": 0
   },
   "parserOptions": {
     "ecmaVersion": 6,

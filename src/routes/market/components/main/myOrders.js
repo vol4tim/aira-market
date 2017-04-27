@@ -1,5 +1,6 @@
 import React from 'react'
 import SellConfirm from './sellConfirm'
+import Name from './name'
 
 const MyOrders = props => (
   (<div className="panel panel-default">
@@ -12,6 +13,7 @@ const MyOrders = props => (
             <th>price</th>
             <th>beneficiary</th>
             <th>promisee</th>
+            <th>name</th>
             <th>promisor</th>
             <th>actions</th>
           </tr>
@@ -26,16 +28,41 @@ const MyOrders = props => (
               </td>
               <td>{order.price}</td>
               <td>
-                {order.beneficiary.map((beneficiary, index2) =>
-                  <small key={index2} className="beneficiary">{beneficiary}</small>
-                )}
+                <ul>
+                  {order.beneficiary.map((address, index2) =>
+                    <li key={index2}>
+                      <a href={'https://kovan.etherscan.io/address/' + address} target="_blank">
+                        <small>{address}</small>
+                      </a>
+                    </li>
+                  )}
+                </ul>
               </td>
               <td>
-                {order.promisee.map((promisee, index2) =>
-                  <small key={index2} className="promisee">{promisee}</small>
-                )}
+                <ul>
+                  {order.promisee.map((address, index2) =>
+                    <li key={index2}>
+                      <a href={'https://kovan.etherscan.io/address/' + address} target="_blank">
+                        <small>{address}</small>
+                      </a>
+                    </li>
+                  )}
+                </ul>
               </td>
-              <td><small className="promisee">{order.promisor}</small></td>
+              <td>
+                <ul>
+                  {order.ipfs.map((hash, index2) =>
+                    <li key={index2}>
+                      <Name hash names={props.names} address={order.promisee[index2]} />
+                    </li>
+                  )}
+                </ul>
+              </td>
+              <td>
+                <a href={'https://kovan.etherscan.io/address/' + order.promisor} target="_blank">
+                  <small>{order.promisor}</small>
+                </a>
+              </td>
               <td>
                 {!order.closed && order.type === 'buy' ?
                   <SellConfirm

@@ -1,4 +1,4 @@
-import { START_LOAD, SET_MARKET, LOAD_MARKET, LOAD_TOKEN, LOAD_ASKS_ORDERS, LOAD_BIDS_ORDERS, LOAD_MY_ORDERS } from './actionTypes'
+import { START_LOAD, SET_MARKET, LOAD_MARKET, LOAD_TOKEN, LOAD_ASKS_ORDERS, LOAD_BIDS_ORDERS, LOAD_MY_ORDERS, SET_NAME_PROMISEE } from './actionTypes'
 import { MARKET_DEFAULT_ADDR } from '../../config/config'
 
 const initialState = {
@@ -19,7 +19,8 @@ const initialState = {
     address: '',
     balance: 0,
     approve: 0
-  }
+  },
+  names: {}
 }
 
 export default function market(state = initialState, action) {
@@ -61,6 +62,11 @@ export default function market(state = initialState, action) {
 
     case LOAD_MY_ORDERS: {
       return { ...state, ...action.payload, isLoadMy: false }
+    }
+
+    case SET_NAME_PROMISEE: {
+      const names = { ...state.names, [action.payload.address]: action.payload.name };
+      return { ...state, names, isLoadMy: false }
     }
 
     default:

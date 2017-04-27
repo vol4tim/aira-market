@@ -17,7 +17,6 @@ class App extends Component {
     if (address) {
       this.props.setMarket(address)
     }
-    console.log(this);
     runListener();
   }
 

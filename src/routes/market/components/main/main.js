@@ -49,6 +49,7 @@ const Main = props => (
               <Bids
                 market={props.market}
                 orders={props.bids}
+                names={props.names}
                 approve={props.token.approve}
                 onBuy={props.onBuy}
               />
@@ -58,7 +59,12 @@ const Main = props => (
           </div>
           <div className="tab-pane" id="2">
             {!props.isLoadAsks ?
-              <Asks market={props.market} orders={props.asks} onSell={props.onSell} />
+              <Asks
+                market={props.market}
+                orders={props.asks}
+                names={props.names}
+                onSell={props.onSell}
+              />
               :
               <p>...</p>
             }
@@ -72,6 +78,7 @@ const Main = props => (
           <MyOrders
             market={props.market}
             orders={props.myOrders}
+            names={props.names}
             onSellConfirm={props.onSellConfirm}
           />
           :

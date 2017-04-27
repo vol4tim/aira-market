@@ -1,4 +1,5 @@
 import React from 'react'
+import Name from './name'
 
 const Asks = props => (
   (<div className="panel panel-default">
@@ -10,22 +11,48 @@ const Asks = props => (
             <th>promisor</th>
             <th>beneficiary</th>
             <th>promisee</th>
+            <th>name</th>
           </tr>
         </thead>
         <tbody>
           {props.orders.map((order, index) =>
             <tr key={index}>
               <td><span className="price">{order.price}</span></td>
-              <td><small className="promisor">{order.promisor}</small></td>
               <td>
-                {order.beneficiary.map((beneficiary, index2) =>
-                  <small key={index2} className="beneficiary">{beneficiary}</small>
-                )}
+                <a href={'https://kovan.etherscan.io/address/' + order.promisor} target="_blank">
+                  <small>{order.promisor}</small>
+                </a>
               </td>
               <td>
-                {order.promisee.map((promisee, index2) =>
-                  <small key={index2} className="promisee">{promisee}</small>
-                )}
+                <ul>
+                  {order.beneficiary.map((address, index2) =>
+                    <li key={index2}>
+                      <a href={'https://kovan.etherscan.io/address/' + address} target="_blank">
+                        <small>{address}</small>
+                      </a>
+                    </li>
+                  )}
+                </ul>
+              </td>
+              <td>
+                <ul>
+                  {order.promisee.map((address, index2) =>
+                    <li key={index2}>
+                      <a href={'https://kovan.etherscan.io/address/' + address} target="_blank">
+                        <small>{address}</small>
+                      </a>
+                    </li>
+                  )}
+                </ul>
+              </td>
+              <td>
+                <ul>
+                  {order.ipfs.map((hash, index2) =>
+                    <li key={index2}>
+                      <Name hash names={props.names} address={order.promisee[index2]} />
+                    </li>
+                  )}
+                </ul>
               </td>
             </tr>
           )}

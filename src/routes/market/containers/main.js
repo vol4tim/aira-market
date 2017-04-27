@@ -29,7 +29,8 @@ function mapStateToProps(state) {
     asks: state.market.asks,
     bids: state.market.bids,
     myOrders: state.market.myOrders,
-    token: state.market.token
+    token: state.market.token,
+    names: state.market.names
   }
 }
 function mapDispatchToProps(dispatch) {
