@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { START_LOAD, SET_MARKET, LOAD_MARKET, LOAD_TOKEN, LOAD_ASKS_ORDERS, LOAD_BIDS_ORDERS, LOAD_MY_ORDERS, SET_NAME_PROMISEE } from './actionTypes'
 import { MARKET_DEFAULT_ADDR } from '../../config/config'
 
@@ -12,6 +13,7 @@ const initialState = {
   isLoadAsks: false,
   isLoadBids: false,
   isLoadMy: false,
+  orders: [],
   asks: [],
   bids: [],
   myOrders: [],
@@ -53,15 +55,25 @@ export default function market(state = initialState, action) {
     }
 
     case LOAD_ASKS_ORDERS: {
-      return { ...state, ...action.payload, isLoadAsks: false }
+      const asks = _.reduce(action.payload, (result, order) => {
+        result.push(order.id);
+        return result;
+      }, []);
+      const orders = _.filter(state.orders, { type: 'bids' });
+      return { ...state, orders: [...orders, ...action.payload], asks, isLoadAsks: false }
     }
 
     case LOAD_BIDS_ORDERS: {
-      return { ...state, ...action.payload, isLoadBids: false }
+      const bids = _.reduce(action.payload, (result, order) => {
+        result.push(order.id);
+        return result;
+      }, []);
+      const orders = _.filter(state.orders, { type: 'asks' });
+      return { ...state, orders: [...orders, ...action.payload], bids, isLoadBids: false }
     }
 
     case LOAD_MY_ORDERS: {
-      return { ...state, ...action.payload, isLoadMy: false }
+      return { ...state, myOrders: action.payload, isLoadMy: false }
     }
 
     case SET_NAME_PROMISEE: {

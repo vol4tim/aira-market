@@ -1,32 +1,28 @@
 import React from 'react'
-import SellConfirm from './sellConfirm'
-import Name from './name'
+import Name from '../common/name'
 
-const MyOrders = props => (
+const Main = props => (
   (<div className="panel panel-default">
-    <div className="panel-heading"><h4 className="panel-title">My active orders</h4></div>
     <div className="panel-body">
       <table className="table table-hover">
         <thead>
           <tr>
-            <th>type</th>
             <th>price</th>
+            <th>promisor</th>
             <th>beneficiary</th>
             <th>promisee</th>
             <th>name</th>
-            <th>promisor</th>
-            <th>actions</th>
           </tr>
         </thead>
         <tbody>
           {props.orders.map((order, index) =>
             <tr key={index}>
+              <td><span className="price">{order.price}</span></td>
               <td>
-                {!order.closed &&
-                  <b style={{ color: (order.type === 'buy') ? 'green' : 'red' }}>{order.type}</b>
-                }
+                <a href={'https://kovan.etherscan.io/address/' + order.promisor} target="_blank">
+                  <small>{order.promisor}</small>
+                </a>
               </td>
-              <td>{order.price}</td>
               <td>
                 <ul>
                   {order.beneficiary.map((address, index2) =>
@@ -51,29 +47,12 @@ const MyOrders = props => (
               </td>
               <td>
                 <ul>
-                  {order.ipfs.map((hash, index2) =>
+                  {order.promisee.map((address, index2) =>
                     <li key={index2}>
-                      <Name name={hash} names={props.names} address={order.promisee[index2]} />
+                      <Name names={props.names} address={address} />
                     </li>
                   )}
                 </ul>
-              </td>
-              <td>
-                <a href={'https://kovan.etherscan.io/address/' + order.promisor} target="_blank">
-                  <small>{order.promisor}</small>
-                </a>
-              </td>
-              <td>
-                {!order.closed && order.type === 'buy' ?
-                  <SellConfirm
-                    market={props.market}
-                    index={order.index}
-                    candidates={order.beneficiary}
-                    onSubmit={props.onSellConfirm}
-                  />
-                  :
-                  <p>-</p>
-                }
               </td>
             </tr>
           )}
@@ -83,4 +62,4 @@ const MyOrders = props => (
   </div>)
 )
 
-export default MyOrders
+export default Main

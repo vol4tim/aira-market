@@ -1,6 +1,6 @@
 /* eslint react/jsx-no-target-blank: 0 */
 import React from 'react'
-import Name from './name'
+import Name from '../../../market/components/common/name'
 
 const Main = props => (
   (<div>

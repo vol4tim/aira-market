@@ -36,24 +36,87 @@ export function loadEns(addresses) {
   return Promise.all(hashes)
 }
 
-export function getNameIpfs(address, hash) {
+export function setName(address, name) {
   return (dispatch, getState) => {
     const state = getState()
     if (!_.has(state.market.names, address)) {
-      axios.get('https://ipfs.io/ipfs/' + hash)
-        .then((results) => {
-          if (_.has(results.data, 'name')) {
-            dispatch({
-              type: SET_NAME_PROMISEE,
-              payload: {
-                address,
-                name: results.data.name
-              }
-            })
+      if (name.substr(0, 2) === 'Qm') {
+        axios.get('https://ipfs.io/ipfs/' + name)
+          .then((results) => {
+            if (_.has(results.data, 'name')) {
+              dispatch({
+                type: SET_NAME_PROMISEE,
+                payload: {
+                  address,
+                  name: results.data.name
+                }
+              })
+            } else {
+              dispatch({
+                type: SET_NAME_PROMISEE,
+                payload: {
+                  address,
+                  name
+                }
+              })
+            }
+          })
+      } else {
+        dispatch({
+          type: SET_NAME_PROMISEE,
+          payload: {
+            address,
+            name
           }
         })
+      }
     }
   }
+}
+
+const getOrder = (market, type, index) => {
+  const orderInfo = {
+    type,
+    ens: [],
+  };
+  return market.call(type, [index])
+    .then((id) => {
+      orderInfo.id = Number(id)
+      if (orderInfo.id > 0) {
+        return market.call('getOrder', [orderInfo.id])
+      }
+      return false;
+    })
+    .then((order) => {
+      if (order !== false && !order[3]) {
+        orderInfo.beneficiary = order[0];
+        orderInfo.promisee = order[1];
+        orderInfo.promisor = order[2];
+        orderInfo.closed = order[3];
+        return market.call('priceOf', [orderInfo.id])
+      }
+      return false;
+    })
+    .then((priceOrder) => {
+      if (priceOrder) {
+        orderInfo.price = Number(priceOrder);
+      }
+    })
+    .then(() => {
+      if (_.has(orderInfo, 'promisee') && orderInfo.promisee.length > 0) {
+        return loadEns(orderInfo.promisee);
+      }
+      return false;
+    })
+    .then((result) => {
+      if (result) {
+        orderInfo.ens = result;
+      }
+      if (_.has(orderInfo, 'id')) {
+        return orderInfo;
+      }
+      return false;
+    })
 }
 
 export function events(marketAddr) {
@@ -147,82 +210,20 @@ export function loadAsks(marketAddr) {
       })
       .then((length) => {
         const orders = [];
-        const getOrder = (i) => {
-          const res = {
-            indexOrder: 0,
-            priceOrder: 0
-          };
-          let orderInfo;
-          return market.call('asks', [i])
-            .then((index) => {
-              res.indexOrder = Number(index)
-              // console.log('index', res.indexOrder);
-              return market.call('priceOf', [res.indexOrder])
-            })
-            .then((priceOrder) => {
-              res.priceOrder = Number(priceOrder);
-              // console.log('price', Number(price));
-              return market.call('getOrder', [res.indexOrder])
-            })
-            .then((order) => {
-              orderInfo = false;
-              if (res.indexOrder > 0 && !order[3]) {
-                orderInfo = {
-                  index: res.indexOrder,
-                  beneficiary: order[0],
-                  promisee: order[1],
-                  ipfs: [],
-                  promisor: order[2],
-                  closed: order[3],
-                  price: res.priceOrder
-                };
-              }
-              return orderInfo;
-            })
-            .then(() => {
-              if (orderInfo && orderInfo.promisee.length > 0) {
-                return loadEns(orderInfo.promisee);
-              }
-              return false;
-            })
-            .then((result) => {
-              if (result) {
-                orderInfo.ipfs = result;
-                _.forEach(result, (hash, index) => {
-                  if (hash.substr(0, 2) === 'Qm') {
-                    dispatch(getNameIpfs(orderInfo.promisee[index], hash));
-                  }
-                });
-              }
-              return orderInfo;
-            })
-            // .then((order) => {
-            //   // console.log('order', order);
-            //   if (res.indexOrder > 0 && !order[3]) {
-            //     return {
-            //       index: res.indexOrder,
-            //       beneficiary: order[0],
-            //       promisee: order[1],
-            //       promisor: order[2],
-            //       closed: order[3],
-            //       price: res.priceOrder
-            //     }
-            //   }
-            //   return false;
-            // })
-        }
         for (let i = 0; i < Number(length) && i <= 14; i += 1) {
-          orders.push(getOrder(i));
+          orders.push(getOrder(market, 'asks', i));
         }
         return Promise.all(orders)
       })
       .then((asks) => {
-        // console.log('ok', asks);
+        _.forEach(asks, (order) => {
+          _.forEach(order.ens, (name, index) => {
+            dispatch(setName(order.promisee[index], name));
+          });
+        });
         dispatch({
           type: LOAD_ASKS_ORDERS,
-          payload: {
-            asks: _.reverse(_.sortBy(asks, ['price']))
-          }
+          payload: asks
         })
       })
   }
@@ -242,82 +243,20 @@ export function loadBids(marketAddr) {
       })
       .then((length) => {
         const orders = [];
-        const getOrder = (i) => {
-          const res = {
-            indexOrder: 0,
-            priceOrder: 0
-          };
-          let orderInfo;
-          return market.call('bids', [i])
-            .then((index) => {
-              res.indexOrder = Number(index)
-              // console.log('index', res.indexOrder);
-              return market.call('priceOf', [res.indexOrder])
-            })
-            .then((priceOrder) => {
-              res.priceOrder = Number(priceOrder);
-              // console.log('price', Number(price));
-              return market.call('getOrder', [res.indexOrder])
-            })
-            .then((order) => {
-              orderInfo = false;
-              if (res.indexOrder > 0 && !order[3]) {
-                orderInfo = {
-                  index: res.indexOrder,
-                  beneficiary: order[0],
-                  promisee: order[1],
-                  promisor: order[2],
-                  ipfs: [],
-                  closed: order[3],
-                  price: res.priceOrder
-                };
-              }
-              return orderInfo;
-            })
-            .then(() => {
-              if (orderInfo && orderInfo.promisee.length > 0) {
-                return loadEns(orderInfo.promisee);
-              }
-              return false;
-            })
-            .then((result) => {
-              if (result) {
-                orderInfo.ipfs = result;
-                _.forEach(result, (hash, index) => {
-                  if (hash.substr(0, 2) === 'Qm') {
-                    dispatch(getNameIpfs(orderInfo.promisee[index], hash));
-                  }
-                });
-              }
-              return orderInfo;
-            })
-            // .then((order) => {
-            //   // console.log('order', order);
-            //   if (res.indexOrder > 0 && !order[3]) {
-            //     return {
-            //       index: res.indexOrder,
-            //       beneficiary: order[0],
-            //       promisee: order[1],
-            //       promisor: order[2],
-            //       closed: order[3],
-            //       price: res.priceOrder
-            //     }
-            //   }
-            //   return false;
-            // })
-        }
         for (let i = 0; i < Number(length) && i <= 14; i += 1) {
-          orders.push(getOrder(i));
+          orders.push(getOrder(market, 'bids', i));
         }
         return Promise.all(orders)
       })
       .then((bids) => {
-        // console.log('ok', bids);
+        _.forEach(bids, (order) => {
+          _.forEach(order.ens, (name, index) => {
+            dispatch(setName(order.promisee[index], name));
+          });
+        });
         dispatch({
           type: LOAD_BIDS_ORDERS,
-          payload: {
-            bids: _.sortBy(bids, ['price'])
-          }
+          payload: bids
         })
       })
   }
@@ -329,99 +268,25 @@ export function loadMyOrders(marketAddr) {
       type: START_LOAD,
       payload: 'my'
     })
-    const indexes = [];
+    const ids = [];
     let market;
-    let id = 0;
+    let i = 0;
     getContractByAbiName('LiabilityMarket', marketAddr)
       .then((contract) => {
         market = contract;
-        return market.call('ordersOf', [coinbase(), id])
+        return market.call('ordersOf', [coinbase(), i])
       })
-      .then(firstIndex => (
-        promiseFor(index => index > 0, (index) => {
-          indexes.push(Number(index))
-          // console.log('index', Number(index));
-          id += 1;
-          return market.call('ordersOf', [coinbase(), id])
-        }, Number(firstIndex))
+      .then(firstId => (
+        promiseFor(id => id > 0, (id) => {
+          ids.push(Number(id))
+          i += 1;
+          return market.call('ordersOf', [coinbase(), i])
+        }, Number(firstId))
       ))
       .then(() => {
-        const orders = [];
-        const getOrder = (index) => {
-          const res = {
-            indexOrder: index,
-            priceOrder: 0
-          };
-          let orderInfo;
-          return market.call('priceOf', [res.indexOrder])
-            .then((priceOrder) => {
-              res.priceOrder = Number(priceOrder);
-              // console.log('price', Number(price));
-              return market.call('getOrder', [res.indexOrder])
-            })
-            .then((order) => {
-              orderInfo = false;
-              if (res.indexOrder > 0 && !order[3]) {
-                orderInfo = {
-                  index: res.indexOrder,
-                  type: (order[2] === '0x0000000000000000000000000000000000000000') ? 'sell' : 'buy',
-                  beneficiary: order[0],
-                  promisee: order[1],
-                  ipfs: [],
-                  promisor: order[2],
-                  closed: order[3],
-                  price: res.priceOrder
-                };
-              }
-              return orderInfo;
-            })
-            .then(() => {
-              if (orderInfo && orderInfo.promisee.length > 0) {
-                return loadEns(orderInfo.promisee);
-              }
-              return false;
-            })
-            .then((result) => {
-              if (result) {
-                orderInfo.ipfs = result;
-                _.forEach(result, (hash, index2) => {
-                  if (hash.substr(0, 2) === 'Qm') {
-                    dispatch(getNameIpfs(orderInfo.promisee[index2], hash));
-                  }
-                });
-              }
-              return orderInfo;
-            })
-            // .then((order) => {
-            //   // console.log('order', order);
-            //   if (res.indexOrder > 0 && !order[3]) {
-            //     return {
-            //       index: res.indexOrder,
-            //       type: (order[2] === '0x00000000000000000000000000000000000
-            // 00000') ? 'sell' : 'buy',
-            //       beneficiary: order[0],
-            //       promisee: order[1],
-            //       ipfs: [],
-            //       promisor: order[2],
-            //       closed: order[3],
-            //       price: res.priceOrder
-            //     }
-            //   }
-            //   return false;
-            // })
-        }
-        _.forEach(indexes, (i) => {
-          orders.push(getOrder(i));
-        })
-        return Promise.all(orders)
-      })
-      .then((orders) => {
-        // console.log('my oks', _.compact(orders));
         dispatch({
           type: LOAD_MY_ORDERS,
-          payload: {
-            myOrders: _.compact(orders)
-          }
+          payload: ids
         })
       })
   }
