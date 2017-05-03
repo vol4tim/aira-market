@@ -15,3 +15,14 @@ export const promiseFor = Promise.method((condition, action, value) => {
 //   .then(() => {
 //     console.log('good');
 //   });
+
+export const formatDecimals = (price, decimals) => {
+  const decimalsFormat = Number(decimals);
+  let decimalsNum = decimalsFormat
+  if (decimalsNum > 0) {
+    decimalsNum = Math.pow(10, decimalsNum)
+  } else {
+    decimalsNum = 1
+  }
+  return (Number(price) / decimalsNum).toFixed(decimalsFormat);
+}

@@ -5,7 +5,6 @@ import Token from './token';
 import Buy from './buy';
 import Bids from './bids';
 import Asks from './asks';
-import MyOrders from './myOrders';
 import { loadMarket } from '../../../modules/air/actions';
 
 class Container extends Component {
@@ -34,30 +33,22 @@ class Container extends Component {
           :
           <p>...</p>
         }
+        <h2>Add order</h2>
         <div className="row">
-          <div className="col-md-12">
+          <div className="col-md-6">
+            <Buy />
+          </div>
+          <div className="col-md-6">
             <Buy />
           </div>
         </div>
+        <h2>Orders</h2>
         <div className="row">
-          <div className="col-md-12">
-            <ul className="nav nav-tabs">
-              <li className="active"><a href="#1" data-toggle="tab">Buy</a></li>
-              <li><a href="#2" data-toggle="tab">Sell</a></li>
-            </ul>
-            <div className="tab-content">
-              <div className="tab-pane active" id="1">
-                <Bids />
-              </div>
-              <div className="tab-pane" id="2">
-                <Asks />
-              </div>
-            </div>
+          <div className="col-md-6">
+            <Bids />
           </div>
-        </div>
-        <div className="row">
-          <div className="col-md-12">
-            <MyOrders />
+          <div className="col-md-6">
+            <Asks />
           </div>
         </div>
       </div>

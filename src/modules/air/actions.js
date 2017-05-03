@@ -2,13 +2,12 @@ import Promise from 'bluebird'
 import _ from 'lodash'
 // import axios from 'axios'
 import cookie from 'react-cookie'
-import { START_LOAD, SET_MARKET, LOAD_MARKET, LOAD_TOKEN, LOAD_ASKS_ORDERS, LOAD_BIDS_ORDERS, LOAD_MY_ORDERS/* , SET_NAME_PROMISEE*/ } from './actionTypes'
+import { START_LOAD, SET_MARKET, LOAD_MARKET, LOAD_TOKEN, LOAD_ASKS_ORDERS, LOAD_BIDS_ORDERS/* , SET_NAME_PROMISEE*/ } from './actionTypes'
 import { getContractByAbiName, blockchain, coinbase, listenAddress } from '../../utils/web3'
-import { promiseFor } from '../../utils/helper'
-import { TOKEN_ADDR/* , ENS_ADDR*/ } from '../../config/config'
+import { formatDecimals } from '../../utils/helper'
 import { flashMessage } from '../app/actions'
 
-const getOrder = (market, type, index) => {
+const getOrder = (market, type, index, decimals) => {
   const orderInfo = {
     type,
     ens: [],
@@ -34,15 +33,9 @@ const getOrder = (market, type, index) => {
     })
     .then((priceOrder) => {
       if (priceOrder) {
-        orderInfo.price = Number(priceOrder);
+        orderInfo.price = formatDecimals(priceOrder, decimals);
       }
     })
-    // .then(() => {
-    //   if (_.has(orderInfo, 'promisee') && orderInfo.promisee.length > 0) {
-    //     return loadEns(orderInfo.promisee);
-    //   }
-    //   return false;
-    // })
     .then((result) => {
       if (result) {
         orderInfo.ens = result;
@@ -149,24 +142,24 @@ export function loadAsks(marketAddr) {
       payload: 'asks'
     })
     let market;
+    let decimals;
     getContractByAbiName('Market', marketAddr)
       .then((contract) => {
         market = contract;
+        return market.call('decimals')
+      })
+      .then((result) => {
+        decimals = result;
         return market.call('asksLength')
       })
       .then((length) => {
         const orders = [];
         for (let i = 0; i < Number(length) && i <= 14; i += 1) {
-          orders.push(getOrder(market, 'asks', i));
+          orders.push(getOrder(market, 'asks', i, decimals));
         }
         return Promise.all(orders)
       })
       .then((asks) => {
-        // _.forEach(asks, (order) => {
-        //   _.forEach(order.ens, (name, index) => {
-        //     dispatch(setName(order.promisee[index], name));
-        //   });
-        // });
         dispatch({
           type: LOAD_ASKS_ORDERS,
           payload: asks
@@ -182,63 +175,27 @@ export function loadBids(marketAddr) {
       payload: 'bids'
     })
     let market;
+    let decimals;
     getContractByAbiName('Market', marketAddr)
       .then((contract) => {
         market = contract;
+        return market.call('decimals')
+      })
+      .then((result) => {
+        decimals = result;
         return market.call('bidsLength')
       })
       .then((length) => {
         const orders = [];
         for (let i = 0; i < Number(length) && i <= 14; i += 1) {
-          orders.push(getOrder(market, 'bids', i));
+          orders.push(getOrder(market, 'bids', i, decimals));
         }
         return Promise.all(orders)
       })
       .then((bids) => {
-        // _.forEach(bids, (order) => {
-        //   _.forEach(order.ens, (name, index) => {
-        //     dispatch(setName(order.promisee[index], name));
-        //   });
-        // });
         dispatch({
           type: LOAD_BIDS_ORDERS,
           payload: bids
-        })
-      })
-  }
-}
-
-export function loadMyOrders(marketAddr) {
-  return (dispatch) => {
-    dispatch({
-      type: START_LOAD,
-      payload: 'my'
-    })
-    const ids = [];
-    let market;
-    let i = 0;
-    getContractByAbiName('Market', marketAddr)
-      .then((contract) => {
-        market = contract;
-        return market.call('ordersOf', [coinbase(), i])
-      })
-      .then(firstId => (
-        promiseFor(id => id > 0, (id) => {
-          ids.push(Number(id))
-          i += 1;
-          return market.call('ordersOf', [coinbase(), i])
-        }, Number(firstId))
-      ))
-      .then(() => {
-        dispatch({
-          type: LOAD_MY_ORDERS,
-          payload: ids
-        })
-      })
-      .catch(() => {
-        dispatch({
-          type: LOAD_MY_ORDERS,
-          payload: ids
         })
       })
   }
@@ -256,20 +213,13 @@ export function loadToken(tokenAddr, type, marketAddr) {
           contract.call('balanceOf', [coinbase()]),
           contract.call('allowance', [coinbase(), marketAddr]),
           contract.call('decimals'),
-          (balance, allowance, decimalsR) => {
-            const decimalsFormat = _.toNumber(decimalsR)
-            let decimals = decimalsFormat
-            if (decimals > 0) {
-              decimals = Math.pow(10, decimals)
-            } else {
-              decimals = 1
-            }
-            return {
+          (balance, allowance, decimals) => (
+            {
               address: tokenAddr,
-              balance: (_.toNumber(balance) / decimals).toFixed(decimalsFormat),
-              approve: (_.toNumber(allowance) / decimals).toFixed(decimalsFormat)
+              balance: formatDecimals(balance, decimals),
+              approve: formatDecimals(allowance, decimals)
             }
-          }
+          )
         )
       ))
       .then((token) => {
@@ -280,15 +230,14 @@ export function loadToken(tokenAddr, type, marketAddr) {
             ...token
           }
         })
-        listenAddress(TOKEN_ADDR, 'loadToken', () => {
-          dispatch(loadToken(marketAddr));
+        listenAddress(tokenAddr, 'loadToken', () => {
+          dispatch(loadToken(tokenAddr, type, marketAddr));
           dispatch(loadBids(marketAddr));
         })
         listenAddress(marketAddr, 'loadMarket', () => {
-          dispatch(loadToken(marketAddr))
+          dispatch(loadToken(tokenAddr, type, marketAddr))
           dispatch(loadAsks(marketAddr));
           dispatch(loadBids(marketAddr));
-          dispatch(loadMyOrders(marketAddr));
         })
       })
   }

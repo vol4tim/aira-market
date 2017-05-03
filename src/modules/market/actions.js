@@ -4,7 +4,7 @@ import axios from 'axios'
 import cookie from 'react-cookie'
 import { START_LOAD, SET_MARKET, LOAD_MARKET, LOAD_TOKEN, LOAD_ASKS_ORDERS, LOAD_BIDS_ORDERS, LOAD_MY_ORDERS, SET_NAME_PROMISEE } from './actionTypes'
 import { getContractByAbiName, blockchain, coinbase, listenAddress } from '../../utils/web3'
-import { promiseFor } from '../../utils/helper'
+import { promiseFor, formatDecimals } from '../../utils/helper'
 import { TOKEN_ADDR, ENS_ADDR } from '../../config/config'
 import { flashMessage } from '../app/actions'
 import { addModule } from '../liability/actions'
@@ -310,20 +310,13 @@ export function loadToken(marketAddr) {
           contract.call('balanceOf', [coinbase()]),
           contract.call('allowance', [coinbase(), marketAddr]),
           contract.call('decimals'),
-          (balance, allowance, decimalsR) => {
-            const decimalsFormat = _.toNumber(decimalsR)
-            let decimals = decimalsFormat
-            if (decimals > 0) {
-              decimals = Math.pow(10, decimals)
-            } else {
-              decimals = 1
-            }
-            return {
+          (balance, allowance, decimals) => (
+            {
               address: TOKEN_ADDR,
-              balance: (_.toNumber(balance) / decimals).toFixed(decimalsFormat),
-              approve: (_.toNumber(allowance) / decimals).toFixed(decimalsFormat)
+              balance: formatDecimals(balance, decimals),
+              approve: formatDecimals(allowance, decimals)
             }
-          }
+          )
         )
       ))
       .then((token) => {
