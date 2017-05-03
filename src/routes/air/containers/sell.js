@@ -1,22 +1,22 @@
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { Main } from '../components/buy';
-import { buy, approve } from '../../../modules/air/actions';
+import { Main } from '../components/sell';
+import { sell, approve } from '../../../modules/air/actions';
 
 function mapStateToProps(state) {
   return {
     market: state.air.market,
-    token: state.air.tokenQuote.address,
-    approve: state.air.tokenQuote.approve
+    token: state.air.tokenBase.address,
+    approve: state.air.tokenBase.approve
   }
 }
 function mapDispatchToProps(dispatch) {
   const actions = bindActionCreators({
-    buy,
+    sell,
     approve
   }, dispatch)
   return {
-    onSubmit: actions.buy,
+    onSubmit: actions.sell,
     onApprove: actions.approve
   }
 }

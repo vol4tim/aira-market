@@ -3,7 +3,7 @@ import _ from 'lodash'
 // import axios from 'axios'
 import cookie from 'react-cookie'
 import { START_LOAD, SET_MARKET, LOAD_MARKET, LOAD_TOKEN, LOAD_ASKS_ORDERS, LOAD_BIDS_ORDERS/* , SET_NAME_PROMISEE*/ } from './actionTypes'
-import { getContractByAbiName, blockchain, coinbase, listenAddress } from '../../utils/web3'
+import { getContractByAbiName, blockchain, coinbase, listenAddress, getWeb3 } from '../../utils/web3'
 import { formatDecimals } from '../../utils/helper'
 import { flashMessage } from '../app/actions'
 
@@ -269,7 +269,23 @@ export function send(abi, address, action, values) {
 
 export function buy(marketAddr, data) {
   return (dispatch) => {
-    dispatch(send('Market', marketAddr, 'limitBuy', _.values(data)))
+    const form = {
+      type: 1,
+      ...data
+    };
+    form.price = getWeb3().toWei(Number(form.price));
+    dispatch(send('Market', marketAddr, 'orderLimit', _.values(form)))
+  }
+}
+
+export function sell(marketAddr, data) {
+  return (dispatch) => {
+    const form = {
+      type: 0,
+      ...data
+    };
+    form.price = getWeb3().toWei(Number(form.price));
+    dispatch(send('Market', marketAddr, 'orderLimit', _.values(form)))
   }
 }
 

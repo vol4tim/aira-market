@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import Token from './token';
 import Buy from './buy';
+import Sell from './sell';
 import Bids from './bids';
 import Asks from './asks';
 import { loadMarket } from '../../../modules/air/actions';
@@ -36,7 +37,7 @@ class Container extends Component {
         <h2>Add order</h2>
         <div className="row">
           <div className="col-md-6">
-            <Buy />
+            <Sell />
           </div>
           <div className="col-md-6">
             <Buy />
