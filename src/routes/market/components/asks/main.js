@@ -1,5 +1,6 @@
 import React from 'react'
 import Name from '../common/name'
+import EthLink from '../common/ethLink';
 
 const Main = props => (
   (<div className="panel panel-default">
@@ -17,19 +18,13 @@ const Main = props => (
         <tbody>
           {props.orders.map((order, index) =>
             <tr key={index}>
-              <td><span className="price">{order.price}</span></td>
-              <td>
-                <a href={'https://kovan.etherscan.io/address/' + order.promisor} target="_blank">
-                  <small>{order.promisor}</small>
-                </a>
-              </td>
+              <td><span className="price">{order.price} Air</span></td>
+              <td><EthLink small address={order.promisor} /></td>
               <td>
                 <ul>
                   {order.beneficiary.map((address, index2) =>
                     <li key={index2}>
-                      <a href={'https://kovan.etherscan.io/address/' + address} target="_blank">
-                        <small>{address}</small>
-                      </a>
+                      <EthLink small address={address} />
                     </li>
                   )}
                 </ul>
@@ -38,9 +33,7 @@ const Main = props => (
                 <ul>
                   {order.promisee.map((address, index2) =>
                     <li key={index2}>
-                      <a href={'https://kovan.etherscan.io/address/' + address} target="_blank">
-                        <small>{address}</small>
-                      </a>
+                      <EthLink small address={address} />
                     </li>
                   )}
                 </ul>

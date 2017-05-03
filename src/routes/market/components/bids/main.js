@@ -1,5 +1,6 @@
 import React from 'react'
 import Name from '../common/name'
+import EthLink from '../common/ethLink';
 
 const Main = props => (
   (<div className="panel panel-default">
@@ -17,14 +18,12 @@ const Main = props => (
         <tbody>
           {props.orders.map((order, index) =>
             <tr key={index}>
-              <td><span className="price">{order.price}</span></td>
+              <td><span className="price">{order.price} Air</span></td>
               <td>
                 <ul>
                   {order.beneficiary.map((address, index2) =>
                     <li key={index2}>
-                      <a href={'https://kovan.etherscan.io/address/' + address} target="_blank">
-                        <small>{address}</small>
-                      </a>
+                      <EthLink small address={address} />
                     </li>
                   )}
                 </ul>
@@ -33,9 +32,7 @@ const Main = props => (
                 <ul>
                   {order.promisee.map((address, index2) =>
                     <li key={index2}>
-                      <a href={'https://kovan.etherscan.io/address/' + address} target="_blank">
-                        <small>{address}</small>
-                      </a>
+                      <EthLink small address={address} />
                     </li>
                   )}
                 </ul>
@@ -55,19 +52,16 @@ const Main = props => (
                     <span className="fa fa-chevron-down" />
                   </button>
                   :
-                  <div>
-                    <span>Not enough approve </span>
-                    <button
-                      className="btn btn-warning btn-xs"
-                      onClick={() => props.onApprove(
-                        props.market,
-                        props.token,
-                        order.price - props.approve
-                      )}
-                    >
-                      Approve {order.price - props.approve}
-                    </button>
-                  </div>
+                  <button
+                    className="btn btn-warning btn-xs"
+                    onClick={() => props.onApprove(
+                      props.market,
+                      props.token,
+                      order.price - props.approve
+                    )}
+                  >
+                    Add to approve {order.price - props.approve} Air
+                  </button>
                 }
               </td>
             </tr>

@@ -170,7 +170,7 @@ export function loadModules() {
   }
 }
 
-export function refrash(address) {
+export function refresh(address) {
   return (dispatch) => {
     dispatch({
       type: LOAD_MODULES,
