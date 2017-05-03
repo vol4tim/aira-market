@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import _ from 'lodash'
 import { Main } from '../components/bids';
-import { loadBids, onBuy, approve, setName } from '../../../modules/market/actions';
+import { loadBids, onBuy, approve, setName } from '../../../modules/air/actions';
 
 class ContainerBids extends Component {
   componentWillMount() {
@@ -19,12 +19,12 @@ class ContainerBids extends Component {
 
 function mapStateToProps(state) {
   return {
-    isLoadBids: state.market.isLoadBids,
-    market: state.market.market,
-    orders: _.sortBy(_.filter(state.market.orders, { type: 'bids' }), ['price']),
-    names: state.market.names,
-    approve: state.market.token.approve,
-    token: state.market.token.address
+    isLoadBids: state.air.isLoadBids,
+    market: state.air.market,
+    orders: _.sortBy(_.filter(state.air.orders, { type: 'bids' }), ['price']),
+    names: state.air.names,
+    approve: state.air.tokenBase.approve,
+    token: state.air.tokenBase.address
   }
 }
 function mapDispatchToProps(dispatch) {
