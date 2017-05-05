@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import BigNumber from 'bignumber.js'
 
 class Main extends Component {
   constructor(props) {
@@ -11,8 +12,25 @@ class Main extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
+  getApprove() {
+    if (Number(this.state.price) > 0) {
+      const price = new BigNumber(this.state.price);
+      const approve = new BigNumber(this.props.approve);
+      return price.minus(approve).toNumber();
+    }
+    return false;
+  }
+
   handleChange(event) {
-    this.setState({ [event.target.name]: event.target.value });
+    let value = event.target.value;
+    if (value !== '') {
+      value = Number(value);
+      if (event.target.name === 'price') {
+        value = new BigNumber(value)
+        value = value.toFixed()
+      }
+    }
+    this.setState({ [event.target.name]: value });
   }
 
   handleSubmit(event) {
@@ -21,6 +39,29 @@ class Main extends Component {
   }
 
   render() {
+    const approve = this.getApprove();
+    let btn = <div className="alert alert-danger">Form is not filled out correctly</div>;
+    if (approve && approve <= 0) {
+      btn = (
+        <button type="submit" className="btn btn-default">Buy</button>
+      )
+    } else if (approve) {
+      btn = (
+        <button
+          className="btn btn-warning"
+          onClick={(e) => {
+            this.props.onApprove(
+              this.props.market,
+              this.props.token,
+              approve
+            );
+            e.preventDefault();
+          }}
+        >
+          Add to approve {approve} AIR
+        </button>
+      )
+    }
     return (
       <div className="panel panel-default">
         <div className="panel-heading"><h4 className="panel-title">Create new ASK lot for purchase ONE robot liability on Sensor market</h4></div>
@@ -28,25 +69,12 @@ class Main extends Component {
           <form onSubmit={this.handleSubmit}>
             <div className="form-group">
               <label className="control-label">Amount of Air tokens to ASK one robot liability:</label>
-              <input value={this.state.price} onChange={this.handleChange} name="price" type="text" className="form-control form-control-b" />
+              <div className="input-group">
+                <input value={this.state.price} onChange={this.handleChange} name="price" type="text" className="form-control form-control-b" />
+                <div className="input-group-addon">AIR</div>
+              </div>
             </div>
-            {this.props.approve >= Number(this.state.price) ?
-              <button type="submit" className="btn btn-default">Buy</button>
-              :
-              <button
-                className="btn btn-warning"
-                onClick={(e) => {
-                  this.props.onApprove(
-                    this.props.market,
-                    this.props.token,
-                    Number(this.state.price) - this.props.approve
-                  );
-                  e.preventDefault();
-                }}
-              >
-                Add to approve {Number(this.state.price) - this.props.approve} Air
-              </button>
-            }
+            {btn}
           </form>
         </div>
       </div>

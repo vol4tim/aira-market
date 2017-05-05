@@ -6,7 +6,7 @@ import Buy from './buy';
 import Bids from './bids';
 import Asks from './asks';
 import MyOrders from './myOrders';
-import EthLink from '../components/common/ethLink';
+import EthLink from '../../../shared/components/common/ethLink';
 import { loadMarket } from '../../../modules/market/actions';
 
 class Container extends Component {

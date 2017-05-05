@@ -9,7 +9,11 @@ const EthLink = (props) => {
   if (!_.isEmpty(props.label)) {
     label = <span className={'label label-' + props.label}>{label}</span>
   }
-  return <a href={'https://kovan.etherscan.io/address/' + props.address} target="_blank">{label}</a>
+  let type = 'address'
+  if (!_.isEmpty(props.type)) {
+    type = props.type
+  }
+  return <a href={'https://kovan.etherscan.io/' + type + '/' + props.address} target="_blank">{label}</a>
 }
 
 export default EthLink

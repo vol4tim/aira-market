@@ -1,8 +1,9 @@
 import _ from 'lodash'
-import { START_LOAD, SET_MARKET, LOAD_MARKET, LOAD_TOKEN, LOAD_ASKS_ORDERS, LOAD_BIDS_ORDERS, LOAD_MY_ORDERS, SET_NAME_PROMISEE } from './actionTypes'
+import { START_LOAD, LOAD_MARKET, LOAD_TOKEN, LOAD_ASKS_ORDERS, LOAD_BIDS_ORDERS } from './actionTypes'
+import { MARKET_AIR_ADDR } from '../../config/config'
 
 const initialState = {
-  market: '0xa50c2203690f52490a449991dEf2cDC3A401Db14',
+  market: MARKET_AIR_ADDR,
   info: {
     name: ''
   },
@@ -16,7 +17,6 @@ const initialState = {
   orders: [],
   asks: [],
   bids: [],
-  myOrders: [],
   tokenBase: {
     address: '',
     balance: 0,
@@ -26,8 +26,7 @@ const initialState = {
     address: '',
     balance: 0,
     approve: 0
-  },
-  names: {}
+  }
 }
 
 export default function air(state = initialState, action) {
@@ -47,10 +46,6 @@ export default function air(state = initialState, action) {
         return { ...state, isLoadMarket: true }
       }
       return { ...state, isLoad: true }
-    }
-
-    case SET_MARKET: {
-      return { ...state, market: action.payload, isLoad: true }
     }
 
     case LOAD_MARKET: {
@@ -80,15 +75,6 @@ export default function air(state = initialState, action) {
       }, []);
       const orders = _.filter(state.orders, { type: 'asks' });
       return { ...state, orders: [...orders, ...action.payload], bids, isLoadBids: false }
-    }
-
-    case LOAD_MY_ORDERS: {
-      return { ...state, myOrders: action.payload, isLoadMy: false }
-    }
-
-    case SET_NAME_PROMISEE: {
-      const names = { ...state.names, [action.payload.address]: action.payload.name };
-      return { ...state, names, isLoadMy: false }
     }
 
     default:

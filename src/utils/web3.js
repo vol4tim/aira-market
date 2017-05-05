@@ -31,7 +31,14 @@ export function coinbase() {
 }
 
 export function getBalance(address) {
-  return parseFloat(web3.fromWei(web3.eth.getBalance(address), 'ether').toString())
+  return new Promise((resolve, reject) => {
+    web3.eth.getBalance(address, (error, result) => {
+      if (error) {
+        reject(error);
+      }
+      resolve(Number(web3.fromWei(result, 'ether')));
+    });
+  });
 }
 
 export function isAccounts() {

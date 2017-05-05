@@ -1,7 +1,7 @@
 import React from 'react'
 import SellConfirm from './sellConfirm'
 import Name from '../common/name'
-import EthLink from '../common/ethLink';
+import EthLink from '../../../../shared/components/common/ethLink';
 
 const Main = props => (
   (<div className="panel panel-default">

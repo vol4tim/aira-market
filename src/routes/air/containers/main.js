@@ -2,10 +2,14 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import Token from './token';
+import AddBalance from './addBalance';
 import Buy from './buy';
 import Sell from './sell';
+import OrderBuy from './orderBuy';
+import OrderSell from './orderSell';
 import Bids from './bids';
 import Asks from './asks';
+import EthLink from '../../../shared/components/common/ethLink';
 import { loadMarket } from '../../../modules/air/actions';
 
 class Container extends Component {
@@ -20,8 +24,8 @@ class Container extends Component {
           :
           <h1>...</h1>
         }
-        <span className="label label-info">{this.props.market}</span>
         <hr />
+        <p>Market smart contract address on KOVAN network: <EthLink label="info" address={this.props.market} /></p>
         {!this.props.isLoadMarket ?
           <div className="row">
             <div className="col-md-6">
@@ -29,6 +33,7 @@ class Container extends Component {
             </div>
             <div className="col-md-6">
               <Token type="quote" />
+              <AddBalance />
             </div>
           </div>
           :
@@ -41,6 +46,15 @@ class Container extends Component {
           </div>
           <div className="col-md-6">
             <Buy />
+          </div>
+        </div>
+        <h2>Close order</h2>
+        <div className="row">
+          <div className="col-md-6">
+            <OrderBuy />
+          </div>
+          <div className="col-md-6">
+            <OrderSell />
           </div>
         </div>
         <h2>Orders</h2>
@@ -60,7 +74,7 @@ class Container extends Component {
 function mapStateToProps(state) {
   return {
     isLoadMarket: state.air.isLoadMarket,
-    market: '0xa50c2203690f52490a449991dEf2cDC3A401Db14',
+    market: state.air.market,
     info: state.air.info
   }
 }

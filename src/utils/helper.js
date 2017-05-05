@@ -1,4 +1,5 @@
 import Promise from 'bluebird'
+import BigNumber from 'bignumber.js'
 
 export const promiseFor = Promise.method((condition, action, value) => {
   if (!condition(value)) return value;
@@ -17,12 +18,6 @@ export const promiseFor = Promise.method((condition, action, value) => {
 //   });
 
 export const formatDecimals = (price, decimals) => {
-  const decimalsFormat = Number(decimals);
-  let decimalsNum = decimalsFormat
-  if (decimalsNum > 0) {
-    decimalsNum = Math.pow(10, decimalsNum)
-  } else {
-    decimalsNum = 1
-  }
-  return (Number(price) / decimalsNum).toFixed(decimalsFormat);
+  const priceNum = new BigNumber(price);
+  return priceNum.shift(-decimals).toNumber();
 }

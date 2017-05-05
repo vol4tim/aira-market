@@ -5,8 +5,7 @@ class Main extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: 1,
-      price: 1
+      value: 1
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -14,7 +13,7 @@ class Main extends Component {
   }
 
   getApprove() {
-    if (Number(this.state.price) > 0 && Number(this.state.value) > 0) {
+    if (Number(this.state.value) > 0) {
       const value = new BigNumber(this.state.value);
       const approve = new BigNumber(this.props.approve);
       return value.minus(approve).toNumber();
@@ -65,7 +64,7 @@ class Main extends Component {
     }
     return (
       <div className="panel panel-default">
-        <div className="panel-heading"><h4 className="panel-title">Add order sell Air</h4></div>
+        <div className="panel-heading"><h4 className="panel-title">Sell Air</h4></div>
         <div className="panel-body">
           <form onSubmit={this.handleSubmit}>
             <div className="form-group">
@@ -73,13 +72,6 @@ class Main extends Component {
               <div className="input-group">
                 <input value={this.state.value} onChange={this.handleChange} name="value" type="text" className="form-control form-control-b" />
                 <div className="input-group-addon">AIR</div>
-              </div>
-            </div>
-            <div className="form-group">
-              <label className="control-label">Price one Air token to Ether:</label>
-              <div className="input-group">
-                <input value={this.state.price} onChange={this.handleChange} name="price" type="text" className="form-control form-control-b" />
-                <div className="input-group-addon">ETH</div>
               </div>
             </div>
             {btn}

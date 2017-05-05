@@ -1,9 +1,8 @@
 import Promise from 'bluebird'
 import _ from 'lodash'
-// import axios from 'axios'
-import cookie from 'react-cookie'
-import { START_LOAD, SET_MARKET, LOAD_MARKET, LOAD_TOKEN, LOAD_ASKS_ORDERS, LOAD_BIDS_ORDERS/* , SET_NAME_PROMISEE*/ } from './actionTypes'
-import { getContractByAbiName, blockchain, coinbase, listenAddress, getWeb3 } from '../../utils/web3'
+import BigNumber from 'bignumber.js'
+import { START_LOAD, LOAD_MARKET, LOAD_TOKEN, LOAD_ASKS_ORDERS, LOAD_BIDS_ORDERS } from './actionTypes'
+import { getContractByAbiName, blockchain, coinbase, listenAddress, getWeb3, transfer, getBalance } from '../../utils/web3'
 import { formatDecimals } from '../../utils/helper'
 import { flashMessage } from '../app/actions'
 
@@ -14,11 +13,8 @@ const getOrder = (market, type, index, decimals) => {
   };
   return market.call(type, [index])
     .then((id) => {
-      // if (Number(id) > 0) {
       orderInfo.id = Number(id)
       return market.call('orders', [orderInfo.id])
-      // }
-      // return false;
     })
     .then((order) => {
       if (order !== false) {
@@ -47,58 +43,24 @@ const getOrder = (market, type, index, decimals) => {
     })
 }
 
-// export function events(marketAddr) {
-//   return (dispatch) => {
-//     getContractByAbiName('Market', marketAddr)
-//       .then((contract) => {
-//         console.log('events');
-//         contract.listen('OpenAskOrder', (result) => {
-//           console.log('OpenAskOrder', result);
-//           dispatch(flashMessage(
-//             'OpenAskOrder: ' + Number(result.order)
-//           ))
-//         })
-//         contract.listen('OpenBidOrder', (result) => {
-//           console.log('OpenBidOrder', result);
-//           dispatch(flashMessage(
-//             'OpenBidOrder: ' + Number(result.order)
-//           ))
-//         })
-//         contract.listen('CloseAskOrder', (result) => {
-//           console.log('CloseAskOrder', result);
-//           dispatch(flashMessage(
-//             'CloseAskOrder: ' + Number(result.order)
-//           ))
-//         })
-//         contract.listen('CloseBidOrder', (result) => {
-//           console.log('CloseBidOrder', result);
-//           dispatch(flashMessage(
-//             'CloseBidOrder: ' + Number(result.order)
-//           ))
-//         })
-//         contract.listen('AskOrderCandidates', (result) => {
-//           console.log('AskOrderCandidates', result);
-//           dispatch(flashMessage(
-//             'AskOrderCandidates: ' + Number(result.order) + ' ' + result.ben
-// eficiary + ' ' + result.promisee
-//           ))
-//         })
-//         contract.listen('NewLiability', (result) => {
-//           console.log('NewLiability', result);
-//           dispatch(addModule(result.liability))
-//         })
-//       })
-//   }
-// }
-
-export function setMarket(address) {
+export function events(marketAddr) {
   return (dispatch) => {
-    cookie.save('market_address', address);
-    dispatch({
-      type: SET_MARKET,
-      payload: address
-    });
-    // dispatch(events(address));
+    getContractByAbiName('Market', marketAddr)
+      .then((contract) => {
+        console.log('events');
+        contract.listen('OrderOpened', (result) => {
+          console.log('OrderOpened', result);
+          dispatch(flashMessage(
+            'OrderOpened: id: ' + Number(result.order) + ' agent: ' + result.agent
+          ))
+        })
+        contract.listen('OrderClosed', (result) => {
+          console.log('OrderClosed', result);
+          dispatch(flashMessage(
+            'OrderClosed: id: ' + Number(result.order)
+          ))
+        })
+      })
   }
 }
 
@@ -108,7 +70,6 @@ export function loadMarket(marketAddr) {
       type: START_LOAD,
       payload: 'market'
     })
-    // let market;
     getContractByAbiName('Market', marketAddr)
       .then(contract => (
         Promise.join(
@@ -131,6 +92,7 @@ export function loadMarket(marketAddr) {
             ...info
           }
         })
+        dispatch(events(marketAddr));
       })
   }
 }
@@ -213,11 +175,13 @@ export function loadToken(tokenAddr, type, marketAddr) {
           contract.call('balanceOf', [coinbase()]),
           contract.call('allowance', [coinbase(), marketAddr]),
           contract.call('decimals'),
-          (balance, allowance, decimals) => (
+          getBalance(coinbase()),
+          (balance, allowance, decimals, balanceEth) => (
             {
               address: tokenAddr,
               balance: formatDecimals(balance, decimals),
-              approve: formatDecimals(allowance, decimals)
+              approve: formatDecimals(allowance, decimals),
+              balanceEth
             }
           )
         )
@@ -232,13 +196,13 @@ export function loadToken(tokenAddr, type, marketAddr) {
         })
         listenAddress(tokenAddr, 'loadToken', () => {
           dispatch(loadToken(tokenAddr, type, marketAddr));
-          dispatch(loadBids(marketAddr));
+          // dispatch(loadBids(marketAddr));
         })
-        listenAddress(marketAddr, 'loadMarket', () => {
-          dispatch(loadToken(tokenAddr, type, marketAddr))
-          dispatch(loadAsks(marketAddr));
-          dispatch(loadBids(marketAddr));
-        })
+        // listenAddress(marketAddr, 'loadMarket', () => {
+        //   dispatch(loadToken(tokenAddr, type, marketAddr))
+        //   dispatch(loadAsks(marketAddr));
+        //   dispatch(loadBids(marketAddr));
+        // })
       })
   }
 }
@@ -289,28 +253,56 @@ export function sell(marketAddr, data) {
   }
 }
 
-export function onBuy(marketAddr, index) {
+export function orderBuy(marketAddr, data) {
   return (dispatch) => {
-    dispatch(send('Market', marketAddr, 'buyAt', [index]))
+    const form = {
+      type: 1,
+      ...data
+    };
+    dispatch(send('Market', marketAddr, 'orderMarket', _.values(form)))
   }
 }
 
-export function onSell(marketAddr, index, data) {
+export function orderSell(marketAddr, data) {
   return (dispatch) => {
-    dispatch(send('Market', marketAddr, 'sellAt', [index, data.promisee]))
-  }
-}
-
-export function onSellConfirm(marketAddr, index, data) {
-  return (dispatch) => {
-    dispatch(send('Market', marketAddr, 'sellConfirm', [index, data.candidates]))
+    const form = {
+      type: 0,
+      ...data
+    };
+    dispatch(send('Market', marketAddr, 'orderMarket', _.values(form)))
   }
 }
 
 export function approve(marketAddr, address, value) {
   return (dispatch) => {
-    const dataForm = [value];
-    dataForm.unshift(marketAddr);
-    dispatch(send('Token', address, 'approve', dataForm))
+    getContractByAbiName('Token', address)
+      .then(contract => (
+        contract.call('decimals')
+      ))
+      .then((decimals) => {
+        const valueNum = new BigNumber(value)
+        const dataForm = [valueNum.shift(decimals).toNumber()];
+        dataForm.unshift(marketAddr);
+        dispatch(send('Token', address, 'approve', dataForm))
+      })
+  }
+}
+
+export function addBalance(token, value) {
+  return (dispatch) => {
+    transfer(coinbase(), token, value.value)
+      .then((txId) => {
+        dispatch(flashMessage('txId: ' + txId))
+        return blockchain.subscribeTx(txId)
+      })
+      .then((transaction) => {
+        dispatch(flashMessage('blockNumber: ' + transaction.blockNumber))
+        return transaction;
+      })
+      .catch((e) => {
+        console.log(e);
+        // dispatch(stopSubmit(formName))
+        return Promise.reject();
+      })
   }
 }

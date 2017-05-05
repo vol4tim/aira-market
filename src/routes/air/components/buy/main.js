@@ -1,4 +1,7 @@
 import React, { Component } from 'react'
+import BigNumber from 'bignumber.js'
+
+global.BigNumber = BigNumber;
 
 class Main extends Component {
   constructor(props) {
@@ -12,8 +15,26 @@ class Main extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
+  getApprove() {
+    if (Number(this.state.price) > 0 && Number(this.state.value) > 0) {
+      const price = new BigNumber(this.state.price);
+      const value = new BigNumber(this.state.value);
+      const approve = new BigNumber(this.props.approve);
+      return price.times(value).minus(approve).toNumber();
+    }
+    return false;
+  }
+
   handleChange(event) {
-    this.setState({ [event.target.name]: event.target.value });
+    let value = event.target.value;
+    if (value !== '') {
+      value = Number(value);
+      if (event.target.name === 'value') {
+        value = new BigNumber(value)
+        value = value.toFixed()
+      }
+    }
+    this.setState({ [event.target.name]: value });
   }
 
   handleSubmit(event) {
@@ -22,36 +43,49 @@ class Main extends Component {
   }
 
   render() {
+    const approve = this.getApprove();
+    let btn = <div className="alert alert-danger">Form is not filled out correctly</div>;
+    if (approve && approve <= 0) {
+      btn = (
+        <button type="submit" className="btn btn-default">Buy</button>
+      )
+    } else if (approve) {
+      btn = (
+        <button
+          className="btn btn-warning"
+          onClick={(e) => {
+            this.props.onApprove(
+              this.props.market,
+              this.props.token,
+              approve
+            );
+            e.preventDefault();
+          }}
+        >
+          Add to approve {approve} ETH
+        </button>
+      )
+    }
     return (
       <div className="panel panel-default">
-        <div className="panel-heading"><h4 className="panel-title">Buy Air</h4></div>
+        <div className="panel-heading"><h4 className="panel-title">Add order buy Air</h4></div>
         <div className="panel-body">
           <form onSubmit={this.handleSubmit}>
             <div className="form-group">
-              <label className="control-label">Value:</label>
-              <input value={this.state.value} onChange={this.handleChange} name="value" type="text" className="form-control form-control-b" />
+              <label className="control-label">Amount of Air tokens:</label>
+              <div className="input-group">
+                <input value={this.state.value} onChange={this.handleChange} name="value" type="text" className="form-control form-control-b" />
+                <div className="input-group-addon">AIR</div>
+              </div>
             </div>
             <div className="form-group">
-              <label className="control-label">Price:</label>
-              <input value={this.state.price} onChange={this.handleChange} name="price" type="text" className="form-control form-control-b" />
+              <label className="control-label">Price one Air token to Ether:</label>
+              <div className="input-group">
+                <input value={this.state.price} onChange={this.handleChange} name="price" type="text" className="form-control form-control-b" />
+                <div className="input-group-addon">ETH</div>
+              </div>
             </div>
-            {this.props.approve >= Number(this.state.price) ?
-              <button type="submit" className="btn btn-default">Buy</button>
-              :
-              <button
-                className="btn btn-warning"
-                onClick={(e) => {
-                  this.props.onApprove(
-                    this.props.market,
-                    this.props.token,
-                    Number(this.state.price) - this.props.approve
-                  );
-                  e.preventDefault();
-                }}
-              >
-                Approve {Number(this.state.price) - this.props.approve}
-              </button>
-            }
+            {btn}
           </form>
         </div>
       </div>

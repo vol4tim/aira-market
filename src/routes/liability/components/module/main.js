@@ -1,7 +1,7 @@
 /* eslint react/jsx-no-target-blank: 0 */
 import React from 'react'
 import Name from '../../../market/components/common/name'
-import EthLink from '../../../market/components/common/ethLink'
+import EthLink from '../../../../shared/components/common/ethLink'
 
 const Main = props => (
   (<div>
