@@ -6,6 +6,7 @@ import Buy from './buy';
 import Bids from './bids';
 import Asks from './asks';
 import MyOrders from './myOrders';
+import EthLink from '../components/common/ethLink';
 import { loadMarket } from '../../../modules/market/actions';
 
 class Container extends Component {
@@ -20,8 +21,8 @@ class Container extends Component {
           :
           <h1>...</h1>
         }
-        <span className="label label-info">{this.props.market}</span>
         <hr />
+        <p>Sensor market smart contract address on KOVAN network: <EthLink label="info" address={this.props.market} /></p>
         <Token />
         <div className="row">
           <div className="col-md-12">

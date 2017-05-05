@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { Main } from '../components/main';
-import { loadModules, refrash } from '../../../modules/liability/actions';
+import { loadModules, refresh } from '../../../modules/liability/actions';
 
 class Container extends Component {
   componentWillMount() {
@@ -30,11 +30,11 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   const actions = bindActionCreators({
     loadModules,
-    refrash
+    refresh
   }, dispatch)
   return {
     loadModules: actions.loadModules,
-    refrash: actions.refrash
+    refresh: actions.refresh
   }
 }
 
